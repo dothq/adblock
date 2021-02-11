@@ -77,11 +77,11 @@ const social = ${JSON.stringify(social)};
 
 ${blockedFooter}
   `
-  // const result = await minify(fileContents, {
-  //   mangle: { reserved: ['blockedDomains'] },
-  // })
+  const result = await minify(fileContents, {
+    mangle: { reserved: ['blockedDomains'] },
+  })
 
   console.log('Writing...')
 
-  fs.writeFileSync(finalPath, fileContents)
+  fs.writeFileSync(finalPath, result.code)
 })()
