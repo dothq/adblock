@@ -1,12 +1,17 @@
-const block = (details) => ({ cancel: true })
+console.log('block')
 
-browser.webRequest.RequestFilter.urls = [
-  ...browser.webRequest.RequestFilter.urls,
-  ...blockedDomains,
-]
+let blocked = []
 
-// browser.webRequest.onBeforeRequest.addListener(
-//   block,
-//   { urls: blockedDomains },
-//   ['blocking']
-// )
+// browser.webRequest.RequestFilter.urls = [
+//   ...browser.webRequest.RequestFilter.urls,
+//   ...blockedDomains,
+// ]
+
+chrome.webRequest.onBeforeRequest.addListener(
+  (details) => {
+    console.log(details.url)
+    return { cancel: true }
+  },
+  { urls: blockedDomains },
+  ['blocking']
+)

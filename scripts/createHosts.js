@@ -16,6 +16,7 @@ const process = (contents) =>
     .map((str) => str.split(' ')[1] || '')
     .filter((str) => str !== '')
     .filter((str) => str !== '0.0.0.0')
+    .map((str) => `*://*.${str}/*`)
 
 ;(async () => {
   console.log('Downloading...')
