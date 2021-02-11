@@ -63,15 +63,16 @@ const process = (contents) =>
   console.log('Generating...')
 
   const fileContents = `
-const common = JSON.parse('${JSON.stringify(base)}');
+const common = ${JSON.stringify(base)};
 
-const fakeNews = JSON.parse('${JSON.stringify(fakeNews)}');
+const fakeNews = ${JSON.stringify(fakeNews)};
 
-const gambling = JSON.parse('${JSON.stringify(gambling)}');
+const gambling = ${JSON.stringify(gambling)};
 
-const porn = JSON.parse('${JSON.stringify(porn)}');
+const porn = ${JSON.stringify(porn)};
 
-const social = JSON.parse('${JSON.stringify(social)}');
+const social = ${JSON.stringify(social)};
+
 
 ${blockedFooter}
   `
