@@ -1,54 +1,40 @@
 {
-  "name": "web-extension-boilerplate",
-  "version": "1.0.0",
-  "description": "Web extension boilerplate",
+  "name": "dot-shield",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dot shield, a fast and efficient adblocker",
   "main": "background.js",
   "scripts": {
     "prettier": "prettier --write '**/**/*.{ts,tsx}'",
-    "dev-chrome": "env BROWSER='chrome' webpack --config webpack/webpack.dev.js --watch",
     "dev-firefox": "env BROWSER='firefox' webpack --config webpack/webpack.dev.js --watch",
-    "dev-edge": "env BROWSER='edge' webpack --config webpack/webpack.dev.js --watch",
-    "chrome": "rimraf dist && env BROWSER='chrome' webpack --config webpack/webpack.prod.js",
     "firefox": "rimraf dist && env BROWSER='firefox' webpack --config webpack/webpack.prod.js",
-    "edge": "rimraf dist && env BROWSER='edge' webpack --config webpack/webpack.prod.js",
-    "test": "jest"
+    "generate": "node scripts/generate"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/davidnguyen179/web-extension-boilerplate.git"
   },
-  "keywords": [
-    "chrome extension",
-    "microsoft edge extension",
-    "firefox addon",
-    "web extension",
-    "typescript",
-    "ts",
-    "jest",
-    "sinon"
-  ],
-  "author": "David Nguyen <dzungnguyen179@gmail.com> (dzungnguyen179@gmail.com)",
+  "keywords": [],
+  "author": "Dot Community <contact@dothq.co>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/davidnguyen179/web-extension-boilerplate/issues"
+    "url": "https://github.com/dothq/adblock/issues"
   },
-  "homepage": "https://github.com/davidnguyen179/web-extension-boilerplate#readme",
+  "homepage": "https://dothq.co/",
   "devDependencies": {
     "@babel/preset-env": "7.12.10",
     "@babel/preset-typescript": "7.12.7",
     "@types/chrome": "0.0.126",
-    "@types/jest": "26.0.19",
+    "@types/react": "^17.0.1",
+    "@types/react-dom": "^17.0.0",
     "@types/sinon": "9.0.9",
-    "babel-jest": "26.6.3",
     "copy-webpack-plugin": "7.0.0",
     "git-hooks-plus": "1.0.1",
     "html-webpack-plugin": "4.5.0",
-    "jest": "26.6.3",
     "prettier": "2.2.1",
     "rimraf": "3.0.2",
     "sinon": "9.2.2",
     "terser-webpack-plugin": "5.0.3",
-    "ts-jest": "26.4.4",
     "ts-loader": "8.0.12",
     "typescript": "4.1.2",
     "web-ext-types": "3.2.1",
@@ -56,5 +42,9 @@
     "webpack-cli": "4.2.0",
     "webpack-merge": "5.6.1",
     "whatwg-fetch": "3.0.0"
+  },
+  "dependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   }
 }
