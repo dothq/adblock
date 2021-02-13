@@ -6,17 +6,17 @@
   "main": "background.js",
   "scripts": {
     "prettier": "prettier --write '**/**/*.{ts,tsx}'",
-    "dev-firefox": "env BROWSER='firefox' webpack --config webpack/webpack.dev.js --watch",
-    "firefox": "rimraf dist && env BROWSER='firefox' webpack --config webpack/webpack.prod.js",
+    "dev": "env webpack --no-stats --config webpack/webpack.dev.js --watch",
+    "build": "rimraf dist && env webpack --config webpack/webpack.prod.js",
     "generate": "node scripts/generate"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davidnguyen179/web-extension-boilerplate.git"
+    "url": "git+https://github.com/dothq/adblock.git"
   },
   "keywords": [],
   "author": "Dot Community <contact@dothq.co>",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/dothq/adblock/issues"
   },
@@ -41,6 +41,7 @@
     "webpack": "5.10.0",
     "webpack-cli": "4.2.0",
     "webpack-merge": "5.6.1",
+    "webpackbar": "^5.0.0-3",
     "whatwg-fetch": "3.0.0"
   },
   "dependencies": {

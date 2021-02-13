@@ -1,17 +1,19 @@
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const srcDir = '../src'
+const WebpackBar = require('webpackbar')
 
-const browser = process.env.BROWSER
+const srcDir = '../src'
+const htmlFiles = require('../src/frontend/html/pages')
 
 module.exports = {
   entry: {
-    popup: path.join(__dirname, `${srcDir}/ui/popup.ts`),
-    background: path.join(
+    popup: path.join(__dirname, `${srcDir}/frontend/ui/popup/popup.ts`),
+    settings: path.join(
       __dirname,
-      `${srcDir}/background/${browser}/background.ts`
+      `${srcDir}/frontend/ui/settings/settings.ts`
     ),
+    background: path.join(__dirname, `${srcDir}/backend/background.ts`),
   },
   output: {
     path: path.join(__dirname, '../dist/js'),
@@ -38,20 +40,38 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: './images', to: '../images', context: 'public' },
-        { from: './popup.html', to: '../popup.html', context: 'public' },
+        // Move all of the icons from the icons folder to public. This is for
+        // any icons specified in the manifest file
+        { from: './frontend/icons', to: '../icons', context: 'src' },
+
+        // Copy all of the html files in the html folder to public
+        ...htmlFiles.map((file) => ({
+          from: `./frontend/html/${file}`,
+          to: `../${file}`,
+          context: 'src',
+        })),
+
+        // Copy the manifest file to public
         {
-          from: `${browser}_manifest.json`,
+          from: './frontend/constants/manifest.json',
           to: '../manifest.json',
-          context: 'public',
+          context: 'src',
         },
       ],
     }),
-    new HtmlWebpackPlugin({
-      inject: false,
-      hash: false,
-      template: 'public/popup.html',
-      filename: '../popup.html',
-    }),
+
+    // Copy all of the html files in the html folder to public
+    ...htmlFiles.map(
+      (file) =>
+        new HtmlWebpackPlugin({
+          inject: false,
+          hash: false,
+          template: `src/frontend/html/${file}`,
+          filename: `../${file}`,
+        })
+    ),
+
+    // Nice clean progress bar for webpack
+    new WebpackBar(),
   ],
 }
