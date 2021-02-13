@@ -11,19 +11,13 @@ module.exports = {
     popup: path.join(__dirname, `${srcDir}/frontend/ui/popup/popup.ts`),
     settings: path.join(
       __dirname,
-      `${srcDir}/frontend/ui/settings/settings.ts`
+      `${srcDir}/frontend/ui/settings/settings.tsx`
     ),
     background: path.join(__dirname, `${srcDir}/backend/background.ts`),
   },
   output: {
     path: path.join(__dirname, '../dist/js'),
     filename: '[name].js',
-  },
-  optimization: {
-    splitChunks: {
-      name: 'vendor',
-      chunks: 'initial',
-    },
   },
   module: {
     rules: [

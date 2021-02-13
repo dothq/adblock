@@ -6,7 +6,7 @@
   "main": "background.js",
   "scripts": {
     "prettier": "prettier --write '**/**/*.{ts,tsx}'",
-    "dev": "env webpack --no-stats --config webpack/webpack.dev.js --watch",
+    "dev": "env webpack --config webpack/webpack.dev.js --watch",
     "build": "rimraf dist && env webpack --config webpack/webpack.prod.js",
     "generate": "node scripts/generate"
   },
@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "uuid": "^8.3.2"
   }
 }
