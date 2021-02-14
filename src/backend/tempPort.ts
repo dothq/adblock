@@ -1,11 +1,11 @@
 const tempPort = (
   id: string,
-  setVar: (val: browser.runtime.Port | undefined) => void,
-  onInstance: (port: browser.runtime.Port) => void
+  onInstance: (port: browser.runtime.Port) => void,
+  setVar?: (val: browser.runtime.Port | undefined) => void
 ) => {
   const connected = (p: browser.runtime.Port) => {
     if (p.name === id) {
-      setVar(p)
+      if (setVar) setVar(p)
       onInstance(p)
 
       p.onDisconnect.addListener(() => setVar(undefined))

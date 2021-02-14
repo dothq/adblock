@@ -9,24 +9,14 @@ let domainsBlocked = {}
 
 let settingsConn: browser.runtime.Port
 
-tempPort(
-  'co.dothq.shield.ui.settings',
-  (p) => (settingsConn = p),
-  (p) => {
-    console.log('Connected')
-    p.onMessage.addListener((msg: any) => {
-      console.log(msg)
-      if ((msg.type = SettingsConn.reload)) {
-        console.log('reload')
-      }
-    })
-  }
-)
-
-browser.runtime.onMessage.addListener((data, sender) => {
-  if (data.type == 'get') {
-    return { domainsBlocked, blockedNum }
-  }
+tempPort('co.dothq.shield.ui.settings', (p) => {
+  console.log('Connected')
+  p.onMessage.addListener((msg: any) => {
+    console.log(msg)
+    if ((msg.type = SettingsConn.reload)) {
+      console.log('reload')
+    }
+  })
 })
 
 browser.webRequest.onBeforeRequest.addListener(
