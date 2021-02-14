@@ -1,0 +1,8 @@
+[package]
+name = "shield"
+version = "0.1.0"
+authors = ["Dot HQ <contact@dothq.co>"]
+edition = "2018"
+
+[dependencies]
+"stdweb" = "0.4.6"

@@ -7,7 +7,7 @@
   "scripts": {
     "prettier": "prettier --write '**/**/*.{ts,tsx}'",
     "dev": "env webpack --config webpack/webpack.dev.js --watch",
-    "build": "rimraf dist && env webpack --config webpack/webpack.prod.js",
+    "build": "rimraf dist && env webpack --config webpack/webpack.prod.js && env webpack --config webpack/webpack.prod.js",
     "generate": "node scripts/generate"
   },
   "repository": {
@@ -33,6 +33,7 @@
     "html-webpack-plugin": "4.5.0",
     "prettier": "2.2.1",
     "rimraf": "3.0.2",
+    "rust-wasm-loader": "^0.2.0",
     "sinon": "9.2.2",
     "terser-webpack-plugin": "5.0.3",
     "ts-loader": "8.0.12",
