@@ -6,7 +6,8 @@
     "webRequest",
     "webRequestBlocking",
     "http://*/",
-    "https://*/"
+    "https://*/",
+    "storage"
   ],
   "manifest_version": 2,
   "background": {
