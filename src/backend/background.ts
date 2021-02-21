@@ -35,6 +35,8 @@ const requestHandler = (details: RequestListenerArgs) => {
 const init = async () => {
   const domainsToBlock = await getBlockedDomains()
 
+  console.log(domainsToBlock)
+
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
     { urls: domainsToBlock },
