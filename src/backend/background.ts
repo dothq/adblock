@@ -1,76 +1,78 @@
-// <reference types="web-ext-types"/>
+/// <reference types="web-ext-types"/>
 
-// import { SettingsConn } from '../constants/settings'
-// import blockedDomains from './domains'
-// import tempPort from './tempPort'
-// import { RequestListenerArgs } from './types'
-const genPromise = require('./rust/src/main.rs')
+import { SettingsConn } from '../constants/settings'
+import { getBlockedDomains } from './domains'
+import tempPort from './tempPort'
+import { RequestListenerArgs } from './types'
+// const genPromise = require('./rust/src/main.rs')
 
 let blockedNum = 0
 let domainsBlocked = {}
 
-// // =================
-// // Blocking code
+// =================
+// Blocking code
 
-// /**
-//  * The listener for webRequests. Blocks all that it receives and adds them to logger
-//  * @param details The request info, provided by the requestHandler
-//  */
-// const requestHandler = (details: RequestListenerArgs) => {
-//   console.log(details.url)
+/**
+ * The listener for webRequests. Blocks all that it receives and adds them to logger
+ * @param details The request info, provided by the requestHandler
+ */
+const requestHandler = (details: RequestListenerArgs) => {
+  console.log(details.url)
 
-//   if (typeof domainsBlocked[details.url] == 'undefined') {
-//     domainsBlocked[details.url] = 0
-//   }
+  if (typeof domainsBlocked[details.url] == 'undefined') {
+    domainsBlocked[details.url] = 0
+  }
 
-//   blockedNum++
-//   domainsBlocked[details.url]++
+  blockedNum++
+  domainsBlocked[details.url]++
 
-//   return { cancel: true }
-// }
+  return { cancel: true }
+}
 
-// /**
-//  * Adds the event listener for blocking requests
-//  */
-// const init = () => {
-//   browser.webRequest.onBeforeRequest.addListener(
-//     requestHandler,
-//     { urls: blockedDomains },
-//     ['blocking']
-//   )
-// }
+/**
+ * Adds the event listener for blocking requests
+ */
+const init = async () => {
+  const domainsToBlock = await getBlockedDomains()
 
-// /**
-//  * Removes the event listener for blocking requests
-//  */
-// const close = () => {
-//   browser.webRequest.onBeforeRequest.removeListener(requestHandler)
-// }
+  browser.webRequest.onBeforeRequest.addListener(
+    requestHandler,
+    { urls: domainsToBlock },
+    ['blocking']
+  )
+}
 
-// // Call the init function, so the blocker starts by default
-// init()
+/**
+ * Removes the event listener for blocking requests
+ */
+const close = () => {
+  browser.webRequest.onBeforeRequest.removeListener(requestHandler)
+}
 
-// // =================
-// // External interactions
+// Call the init function, so the blocker starts by default
+init()
 
-// // Interacts with the settings ui
-// tempPort('co.dothq.shield.ui.settings', (p) => {
-//   console.log('Connected')
-//   p.onMessage.addListener((msg: any) => {
-//     console.log(msg)
+// =================
+// External interactions
 
-//     // The settings ui has requested a reload
-//     if (msg.type == SettingsConn.reload) {
-//       console.log('reload')
+// Interacts with the settings ui
+tempPort('co.dothq.shield.ui.settings', (p) => {
+  console.log('Connected')
+  p.onMessage.addListener((msg: any) => {
+    console.log(msg)
 
-//       close()
-//       init()
-//     }
-//   })
-// })
-;(async () => {
-  const gen = await genPromise
-  gen.init()
+    // The settings ui has requested a reload
+    if (msg.type == SettingsConn.reload) {
+      console.log('reload')
 
-  // const module = gen.initialize({ noExitRuntime: true })
-})()
+      close()
+      init()
+    }
+  })
+})
+
+//* Rust code stuff. Disabled for the moment, because I don't need it
+// ;(async () => {
+//   const gen = await genPromise
+//   gen.init()
+// })()

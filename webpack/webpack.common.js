@@ -58,7 +58,7 @@ module.exports = {
 
         // Copy the manifest file to public
         {
-          from: './frontend/constants/manifest.json',
+          from: './constants/manifest.json',
           to: './manifest.json',
           context: 'src',
         },
