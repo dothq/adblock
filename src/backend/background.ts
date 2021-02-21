@@ -62,6 +62,7 @@ tempPort('co.dothq.shield.ui.settings', (p) => {
     console.log(msg)
 
     // The settings ui has requested a reload
+    // Todo: seperate reload and update functions for lists
     if (msg.type == SettingsConn.reload) {
       console.log('reload')
 
@@ -71,7 +72,9 @@ tempPort('co.dothq.shield.ui.settings', (p) => {
   })
 })
 
-//* Rust code stuff. Disabled for the moment, because I don't need it
+//* Rust code stuff. Disabled for the moment, because we aren't using it
+// To reenable, uncomment the following lines, the import statement at the top of
+// the file, and the relevant comment in /webpack/webpack.common.js
 // ;(async () => {
 //   const gen = await genPromise
 //   gen.init()

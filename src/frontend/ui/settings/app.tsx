@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import { DEFAULT_SETTINGS, SettingsConn } from '../../../constants/settings'
 import { Button, Checkbox } from '../common'
 
+// Connect to the background script
 const backgroundScript = browser.runtime.connect({
   name: 'co.dothq.shield.ui.settings',
 })
@@ -19,6 +20,11 @@ class SettingsApp extends Component<AppState> {
     this.fetchSettings()
   }
 
+  /**
+   * Retrieve extension information in an async manner
+   *
+   * @memberof SettingsApp
+   */
   async fetchSettings() {
     let settings = (await browser.storage.local.get('settings')).settings || {}
 

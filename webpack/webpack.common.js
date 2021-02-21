@@ -26,17 +26,20 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
-      {
-        test: /\.rs$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'rust-wasm-loader',
-          options: {
-            // The path to the webpack output relative to the project root
-            path: 'dest',
-          },
-        },
-      },
+      //* File loader for rust code
+      // This has been disabled for performance and ease of development reasons as
+      // we don't currently need it
+      // {
+      //   test: /\.rs$/,
+      //   exclude: /node_modules/,
+      //   use: {
+      //     loader: 'rust-wasm-loader',
+      //     options: {
+      //       // The path to the webpack output relative to the project root
+      //       path: 'dest',
+      //     },
+      //   },
+      // },
     ],
   },
   resolve: {
