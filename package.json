@@ -5,7 +5,7 @@
   "description": "Dot shield, a fast and efficient adblocker",
   "main": "background.js",
   "scripts": {
-    "prettier": "prettier --write '**/**/*.{ts,tsx}'",
+    "prettier": "prettier --write .",
     "dev": "env webpack --config webpack/webpack.dev.js --watch",
     "build": "rimraf dist && env webpack --config webpack/webpack.prod.js && env webpack --config webpack/webpack.prod.js",
     "generate": "node scripts/generate"
