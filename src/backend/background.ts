@@ -62,7 +62,7 @@ tempPort('co.dothq.shield.ui.settings', (p) => {
     console.log(msg)
 
     // The settings ui has requested a reload
-    // Todo: seperate reload and update functions for lists
+    // Todo: Separate reload and update functions for lists
     if (msg.type == SettingsConn.reload) {
       console.log('reload')
 
