@@ -1,0 +1,71 @@
+name: Package addon
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        release:
+          description: 'Should publish to github releases'
+          required: true
+          default: false
+        version:
+          description: 'The version to be updated in all files'
+          required: true
+          default: '0.0.0'
+        prerelease:
+          description: 'If it should be publish as a prerelease'
+          required: true
+          default: false
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Install...
+        run: yarn
+
+      - name: Change version...
+        run: yarn ver ${{ github.event.inputs.version }}
+
+      - name: Enforce code style...
+        run: yarn prettier
+
+      - name: Upload changes...
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_email: dothq-robot@users.noreply.github.com
+          message: '🔖 Bump version to ${{ github.event.inputs.version }}'
+
+      - name: Build...
+        run: yarn build
+
+      - name: Compress...
+        run: |
+          cd dist 
+          zip -r dot-shield .
+          cd ..
+          mv dist/dot-shield.zip .
+
+      - name: Create artifact...
+        uses: actions/upload-artifact@v2
+        with:
+          name: extension
+          path: ./dot-shield.zip
+
+      - name: Create release...
+        if: github.event.inputs.release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: 'v${{ github.event.inputs.version }}'
+          release_name: Release ${{ github.event.inputs.version }}
+          body: |
+            @trickypr do something to this
+          draft: false
+          prerelease: github.event.inputs.prerelease
