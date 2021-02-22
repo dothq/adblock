@@ -35,10 +35,13 @@ jobs:
         run: yarn prettier
 
       - name: Upload changes...
-        uses: EndBug/add-and-commit@v7
-        with:
-          author_email: dothq-robot@users.noreply.github.com
-          message: '🔖 Bump version to ${{ github.event.inputs.version }}'
+        run: |
+          git config --global user.name "dothq-robot"
+          git config --global user.email "72629236+dothq-robot@users.noreply.github.com"
+          git status
+          git add .
+          git commit -m "🔖 Bump version to ${{ github.event.inputs.version }}"
+          git push origin main
 
       - name: Build...
         run: yarn build
