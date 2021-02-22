@@ -19,5 +19,6 @@ jobs:
       - name: Upload changes...
         uses: EndBug/add-and-commit@v7
         with:
-          author_email: dothq-robot@users.noreply.github.com
+          author_name: 'dothq-robot'
+          author_email: '72629236+dothq-robot@users.noreply.github.com'
           message: '🎨 Enforce code style'
