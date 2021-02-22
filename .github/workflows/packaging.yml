@@ -17,7 +17,8 @@ on:
         default: 'off'
 
 jobs:
-  prettier:
+  build:
+    name: Main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -57,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: extension
-          path: ./dot-shield.zip
+          path: ./dist/
 
       - name: Create release...
         if: github.event.inputs.release == 'on'
