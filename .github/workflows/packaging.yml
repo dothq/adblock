@@ -3,19 +3,18 @@ name: Package addon
 on:
   workflow_dispatch:
     inputs:
-      name:
-        release:
-          description: 'Should publish to github releases'
-          required: true
-          default: false
-        version:
-          description: 'The version to be updated in all files'
-          required: true
-          default: '0.0.0'
-        prerelease:
-          description: 'If it should be publish as a prerelease'
-          required: true
-          default: false
+      release:
+        description: 'Should publish to github releases'
+        required: true
+        default: false
+      version:
+        description: 'The version to be updated in all files'
+        required: true
+        default: '0.0.0'
+      prerelease:
+        description: 'If it should be publish as a prerelease'
+        required: true
+        default: false
 
 jobs:
   prettier:
