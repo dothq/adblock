@@ -2,9 +2,6 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  changelog:
-    runs-on: ubuntu-latest
-
   prettier:
     runs-on: ubuntu-latest
     steps:
