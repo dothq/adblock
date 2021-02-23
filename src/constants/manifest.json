@@ -1,6 +1,6 @@
 {
   "name": "Dot Shield",
-  "version": "0.1.0.a1",
+  "version": "Test",
   "description": "Dot Shield: A fast and simple ad blocker for dot browser",
   "permissions": [
     "webRequest",
