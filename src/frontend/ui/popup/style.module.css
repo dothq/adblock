@@ -1,0 +1,23 @@
+:root {
+  --bg: #ffffff;
+}
+
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+  }
+}
+*/
+
+.container {
+  background-color: var(--bg);
+  width: 376px;
+}
+
+.chart {
+  width: 100%;
+}
+
+.chart .innertext {
+}
