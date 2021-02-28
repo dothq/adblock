@@ -41,7 +41,11 @@ export const Ring: (props: {
 
           return (
             <div
-              style={{ position: 'absolute', pointerEvents: 'none' }}
+              style={{
+                position: 'absolute',
+                pointerEvents: 'none',
+                margin: '0 auto',
+              }}
               key={i}
             >
               <div className={style.dropdown}>
@@ -49,8 +53,6 @@ export const Ring: (props: {
                   style={{
                     height: SIZE,
                     width: SIZE,
-                    // margin: '0 auto',
-                    display: 'inline',
                   }}
                 >
                   <g>

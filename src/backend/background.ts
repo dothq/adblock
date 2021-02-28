@@ -17,7 +17,7 @@ let domainsBlocked = {}
  * @param details The request info, provided by the requestHandler
  */
 const requestHandler = (details: RequestListenerArgs) => {
-  console.log(details.url)
+  console.log('Blocked')
 
   if (typeof domainsBlocked[details.url] == 'undefined') {
     domainsBlocked[details.url] = 0
