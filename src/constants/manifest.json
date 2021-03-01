@@ -5,6 +5,8 @@
   "permissions": [
     "webRequest",
     "webRequestBlocking",
+    "tabs",
+    "webNavigation",
     "http://*/",
     "https://*/",
     "storage"

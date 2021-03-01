@@ -8,6 +8,7 @@ import { RequestListenerArgs } from './types'
 
 let blockedNum = 0
 let domainsBlocked = {}
+let adsOnTabs = {}
 
 // =================
 // Blocking code
@@ -18,6 +19,15 @@ let domainsBlocked = {}
  */
 const requestHandler = (details: RequestListenerArgs) => {
   console.log('Blocked')
+
+  // Record that this specific ad was seen on this tab
+  // Check if the tab has been recorded
+  if (typeof adsOnTabs[details.tabId] === 'undefined') {
+    // Give it an empty array of values
+    adsOnTabs[details.tabId] = []
+  }
+  // Push the url of the current tab onto the array
+  adsOnTabs[details.tabId].push(details.url)
 
   if (typeof domainsBlocked[details.url] == 'undefined') {
     domainsBlocked[details.url] = 0
@@ -73,6 +83,25 @@ tempPort('co.dothq.shield.ui.settings', (p) => {
     }
   })
 })
+
+// Code to clean up the adsOnTabs variable. This will discard tabs that have been
+// deleted or have changed their url
+const tabRemoved = (tabId: number) => {
+  if (typeof adsOnTabs[tabId] !== 'undefined') {
+    console.log(`Tab removed: ${tabId}`)
+    delete adsOnTabs[tabId]
+  }
+}
+
+const tabUpdated = ({ tabId }) => {
+  if (typeof adsOnTabs[tabId] !== 'undefined') {
+    console.log(`Tab reloaded: ${tabId}`)
+    delete adsOnTabs[tabId]
+  }
+}
+
+browser.tabs.onRemoved.addListener(tabRemoved)
+browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 
 //* Rust code stuff. Disabled for the moment, because we aren't using it
 // To reenable, uncomment the following lines, the import statement at the top of
