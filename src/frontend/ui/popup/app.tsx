@@ -8,16 +8,6 @@ export class App extends Component {
   render() {
     return (
       <div className={styles.container}>
-        <h1>Hello</h1>
-
-        <style>
-          {`
-            .${styles.chart}-innertext {
-              display: none;
-            }
-          `}
-        </style>
-
         <Ring
           data={[
             {
@@ -30,6 +20,8 @@ export class App extends Component {
               color: '#6fdb6f',
             },
           ]}
+          title="0"
+          subtitle="Blocked"
         />
       </div>
     )

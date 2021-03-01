@@ -17,11 +17,13 @@ const ringStyles = (percentage: number, prior: number): string => {
 
 export const Ring: (props: {
   data: { label: string; value: number; color?: string }[]
-}) => any = ({ data }) => {
+  title: string
+  subtitle: string
+}) => any = ({ data, title, subtitle }) => {
   let totalRotation = 0
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', height: SIZE, position: 'relative' }}>
       <style>
         {data.map((ring, i) => {
           const elStyle = `
@@ -35,7 +37,13 @@ export const Ring: (props: {
         })}
       </style>
 
-      <div style={{ position: 'relative' }}>
+      <div
+        style={{
+          position: 'relative',
+          // width: '100%',
+          height: '100%',
+        }}
+      >
         {data.map((ring, i) => {
           const [hover, setHover] = useState(false)
 
@@ -44,8 +52,8 @@ export const Ring: (props: {
               style={{
                 position: 'absolute',
                 pointerEvents: 'none',
-                margin: '0 auto',
               }}
+              className={style.center}
               key={i}
             >
               <div className={style.dropdown}>
@@ -81,6 +89,11 @@ export const Ring: (props: {
             </div>
           )
         })}
+      </div>
+
+      <div className={style.center}>
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
       </div>
     </div>
   )
