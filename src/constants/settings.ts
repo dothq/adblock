@@ -13,3 +13,8 @@ export const LATEST_SETTINGS_VERSION = DEFAULT_SETTINGS.version
 export enum SettingsConn {
   reload = 'type.reload',
 }
+
+export enum PopupConn {
+  getAds = 'type.getAds',
+  returnAds = 'type.returnAds',
+}

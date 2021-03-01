@@ -1,6 +1,6 @@
 /// <reference types="web-ext-types"/>
 
-import { SettingsConn } from '../constants/settings'
+import { PopupConn, SettingsConn } from '../constants/settings'
 import { getBlockedDomains } from './domains'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
@@ -66,6 +66,14 @@ init()
 
 // =================
 // External interactions
+
+tempPort('co.dothq.shield.ui.popup', (p) => {
+  p.onMessage.addListener((msg: any) => {
+    if (msg.type === PopupConn.getAds) {
+      p.postMessage({ type: PopupConn.returnAds, payload: adsOnTabs })
+    }
+  })
+})
 
 // Interacts with the settings ui
 tempPort('co.dothq.shield.ui.settings', (p) => {

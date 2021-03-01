@@ -8,7 +8,9 @@ const tempPort = (
       if (setVar) setVar(p)
       onInstance(p)
 
-      p.onDisconnect.addListener(() => setVar(undefined))
+      p.onDisconnect.addListener(() => {
+        if (setVar) setVar(undefined)
+      })
     }
   }
 
