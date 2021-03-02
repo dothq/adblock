@@ -9,9 +9,9 @@ console.log(STROKE_ARRAY)
 const ringStyles = (percentage: number, prior: number): string => {
   return `
     stroke-dasharray: ${STROKE_ARRAY};
-    stroke-dashoffset: ${Math.round(STROKE_ARRAY * (percentage / 100))};
+    stroke-dashoffset: ${Math.round(STROKE_ARRAY * ((100 - percentage) / 100))};
     transform-origin: ${SIZE / 2}px ${SIZE / 2}px;
-    transform: rotate(${-(360 * (prior / 100) + 90)}deg)
+    transform: rotate(${-(360 * ((prior + percentage) / 100))}deg)
   `
 }
 
@@ -21,6 +21,9 @@ export const Ring: (props: {
   subtitle: string
 }) => any = ({ data, title, subtitle }) => {
   let totalRotation = 0
+  const [hover, setHover] = useState({})
+  const [forceState, setForceState] = useState(false)
+  const forceRender = () => setForceState(!forceState)
 
   return (
     <div style={{ width: '100%', height: SIZE, position: 'relative' }}>
@@ -45,7 +48,19 @@ export const Ring: (props: {
         }}
       >
         {data.map((ring, i) => {
-          const [hover, setHover] = useState(false)
+          // const [hover, setHover] = useState(false)
+
+          const setLocalHover = (bool) => {
+            hover[i] = bool
+            setHover(hover)
+            forceRender()
+          }
+
+          if (typeof hover[i] === 'undefined') {
+            hover[i] = false
+            setHover(hover)
+            forceRender()
+          }
 
           return (
             <div
@@ -74,14 +89,14 @@ export const Ring: (props: {
                       strokeWidth={STROKE_WIDTH}
                       stroke={ring.color || '#69aff4'}
                       fill="none"
-                      onMouseEnter={() => setHover(true)}
-                      onMouseLeave={() => setHover(false)}
+                      onMouseEnter={() => setLocalHover(true)}
+                      onMouseLeave={() => setLocalHover(false)}
                     />
                   </g>
                 </svg>
                 <div
                   className={style.dropdownContent}
-                  style={{ display: hover ? 'block' : 'none' }}
+                  style={{ display: hover[i] ? 'block' : 'none' }}
                 >
                   <p>{ring.label}</p>
                 </div>
