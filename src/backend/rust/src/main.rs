@@ -1,4 +1,5 @@
-// plz run rustup override set nightly   
+// Note that to ru this code you have to run the following code in the rust directory
+// `rustup override set nightly`   
 #![feature(proc_macro)]
 #[macro_use]
 
