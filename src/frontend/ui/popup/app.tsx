@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import React, { Component } from 'react'
 import psl from 'psl'
 
 import { PopupConn } from '../../../constants/settings'
@@ -6,6 +6,7 @@ import { graphColors } from '../../constants/colors'
 import { Ring } from '../common/ring'
 
 import styles from './style.module.css'
+import { Button } from '../common/btn'
 
 const backgroundScript = browser.runtime.connect({
   name: 'co.dothq.shield.ui.popup',
@@ -21,6 +22,7 @@ export class App extends Component {
       },
     ],
     blocked: 0,
+    whitelisted: false,
   }
 
   componentDidMount() {
@@ -92,6 +94,7 @@ export class App extends Component {
             blocked: blockedNum,
           })
         }
+      } else if (msg.type === PopupConn.returnWhitelist) {
       }
     })
     backgroundScript.postMessage({ type: PopupConn.getAds })
@@ -107,6 +110,8 @@ export class App extends Component {
           title={this.state.blocked.toString()}
           subtitle="Blocked"
         />
+
+        <Button isPrimary={true}>Hello world</Button>
       </div>
     )
   }

@@ -15,6 +15,13 @@ export enum SettingsConn {
 }
 
 export enum PopupConn {
+  // Get the ads blocked
   getAds = 'type.getAds',
   returnAds = 'type.returnAds',
+
+  // Whitelist management
+  addWhitelist = 'type.addWhitelist',
+  removeWhitelist = 'type.removeWhitelist',
+  getWhitelist = 'type.getWhitelist',
+  returnWhitelist = 'type.returnWhitelist',
 }

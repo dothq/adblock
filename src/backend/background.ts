@@ -2,6 +2,7 @@
 
 import { PopupConn, SettingsConn } from '../constants/settings'
 import { getBlockedDomains } from './domains'
+import { PermStore } from './permStore'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
 // const genPromise = require('./rust/src/main.rs')
@@ -9,6 +10,10 @@ import { RequestListenerArgs } from './types'
 let blockedNum = 0
 let domainsBlocked = {}
 let adsOnTabs = {}
+
+// =================
+// Permanent storage code
+const whitelist = new PermStore('whitelist', [])
 
 // =================
 // Blocking code
@@ -45,7 +50,11 @@ const requestHandler = (details: RequestListenerArgs) => {
 const init = async () => {
   const domainsToBlock = await getBlockedDomains()
 
+  // Wait for storage objects to load
+  await whitelist.load()
+
   console.log(domainsToBlock)
+  console.log(whitelist.data)
 
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
@@ -71,6 +80,23 @@ tempPort('co.dothq.shield.ui.popup', (p) => {
   p.onMessage.addListener((msg: any) => {
     if (msg.type === PopupConn.getAds) {
       p.postMessage({ type: PopupConn.returnAds, payload: adsOnTabs })
+    }
+
+    if (msg.type === PopupConn.getWhitelist) {
+      p.postMessage({
+        type: PopupConn.returnWhitelist,
+        payload: whitelist.data,
+      })
+    }
+
+    if (msg.type === PopupConn.addWhitelist) {
+      whitelist.data.push(msg.payload)
+    }
+
+    if (msg.type === PopupConn.removeWhitelist) {
+      console.log(whitelist)
+      whitelist.data.filter((value) => value === msg.payload)
+      console.log(whitelist)
     }
   })
 })
