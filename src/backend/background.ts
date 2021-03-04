@@ -1,5 +1,7 @@
 /// <reference types="web-ext-types"/>
 
+import psl from 'psl'
+
 import { PopupConn, SettingsConn } from '../constants/settings'
 import { getBlockedDomains } from './domains'
 import { PermStore } from './permStore'
@@ -18,14 +20,22 @@ const whitelist = new PermStore('whitelist', [])
 // =================
 // Blocking code
 
+const getDomain = (url) =>
+  psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
+    .domain
+
 /**
  * The listener for webRequests. Blocks all that it receives and adds them to logger
  * @param details The request info, provided by the requestHandler
  */
 const requestHandler = (details: RequestListenerArgs) => {
+  // Check if the site is contained in the whitelist
+  // FIXME: URLS from a remote with a different url but are still from this tab are blocked
+  const domain = getDomain(details.originUrl)
+  if (whitelist.data.indexOf(domain) !== -1) return
+
   console.log('Blocked')
 
-  // TODO [#11]: Allow the option to whitelist sites
   // TODO [#12]: Long term data collection
   // TODO [#13]: Move data collection to rust
 
@@ -38,12 +48,12 @@ const requestHandler = (details: RequestListenerArgs) => {
   // Push the url of the current tab onto the array
   adsOnTabs[details.tabId].push(details.url)
 
-  if (typeof domainsBlocked[details.url] == 'undefined') {
-    domainsBlocked[details.url] = 0
-  }
+  // if (typeof domainsBlocked[details.url] == 'undefined') {
+  //   domainsBlocked[details.url] = 0
+  // }
 
-  blockedNum++
-  domainsBlocked[details.url]++
+  // blockedNum++
+  // domainsBlocked[details.url]++
 
   return { cancel: true }
 }

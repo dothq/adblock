@@ -154,7 +154,7 @@ export class App extends Component {
 
         <div className={styles.controls}>
           <Button isPrimary={true} onClick={() => this.toggleWhitelist()}>
-            {this.state.whitelisted ? 'Allow' : 'Block'} ads and trackers on
+            {this.state.whitelisted ? 'Block' : 'Allow'} ads and trackers on
             this site
           </Button>
         </div>
