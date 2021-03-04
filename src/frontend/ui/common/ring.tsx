@@ -4,7 +4,6 @@ import style from './ring.module.css'
 const SIZE = 232
 const STROKE_WIDTH = 24
 const STROKE_ARRAY = Math.round(SIZE * 2.7)
-console.log(STROKE_ARRAY)
 
 const ringStyles = (percentage: number, prior: number): string => {
   return `

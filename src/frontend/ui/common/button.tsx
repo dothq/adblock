@@ -1,14 +1,27 @@
 import React from 'react'
 
-type ButtonProps = { className?: string; children: any; onClick?: any }
+import buttonStyle from '../common/btn.module.css'
+
+type ButtonProps = {
+  className?: string
+  children: any
+  onClick?: any
+  isPrimary?: boolean
+}
 type ButtonComponent = (arg0: ButtonProps) => any
 
 const Button: ButtonComponent = ({
   className = '',
   children,
   onClick = undefined,
+  isPrimary = false,
 }) => (
-  <button className={`browser-style ${className}`} onClick={onClick}>
+  <button
+    className={`${buttonStyle.btn} ${
+      isPrimary ? buttonStyle.primary : buttonStyle.secondary
+    } ${className}`}
+    onClick={onClick}
+  >
     {children}
   </button>
 )

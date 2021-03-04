@@ -82,6 +82,8 @@ init()
 
 tempPort('co.dothq.shield.ui.popup', (p) => {
   p.onMessage.addListener((msg: any) => {
+    console.log(msg)
+
     if (msg.type === PopupConn.getAds) {
       p.postMessage({ type: PopupConn.returnAds, payload: adsOnTabs })
     }
@@ -95,12 +97,22 @@ tempPort('co.dothq.shield.ui.popup', (p) => {
 
     if (msg.type === PopupConn.addWhitelist) {
       whitelist.data.push(msg.payload)
+
+      // Resend the whitelist so the UI updates
+      p.postMessage({
+        type: PopupConn.returnWhitelist,
+        payload: whitelist.data,
+      })
     }
 
     if (msg.type === PopupConn.removeWhitelist) {
-      console.log(whitelist)
-      whitelist.data.filter((value) => value === msg.payload)
-      console.log(whitelist)
+      whitelist.data = whitelist.data.filter((value) => value != msg.payload)
+
+      // Resend the whitelist so the UI updates
+      p.postMessage({
+        type: PopupConn.returnWhitelist,
+        payload: whitelist.data,
+      })
     }
   })
 })
@@ -109,8 +121,6 @@ tempPort('co.dothq.shield.ui.popup', (p) => {
 tempPort('co.dothq.shield.ui.settings', (p) => {
   console.log('Connected')
   p.onMessage.addListener((msg: any) => {
-    console.log(msg)
-
     // The settings ui has requested a reload
     if (msg.type == SettingsConn.reload) {
       console.log('reload')

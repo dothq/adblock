@@ -13,13 +13,9 @@ export class PermStore<DataType> {
 
   private async loadData(defaultData: DataType) {
     const localStorage = await browser.storage.local.get()
-    let data = JSON.parse(localStorage[this.key] as string)
+    const data: any = localStorage[this.key]
 
-    if (typeof data === 'undefined') {
-      data = defaultData
-    }
-
-    this.data = data
+    this.memData = (data as DataType) || defaultData
   }
 
   private async storeData() {
@@ -37,7 +33,7 @@ export class PermStore<DataType> {
   }
 
   set data(data: DataType) {
-    this.data = data
+    this.memData = data
     this.storeData()
   }
 }

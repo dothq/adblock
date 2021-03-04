@@ -4,13 +4,17 @@ import psl from 'psl'
 import { PopupConn } from '../../../constants/settings'
 import { graphColors } from '../../constants/colors'
 import { Ring } from '../common/ring'
+import { Button } from '../common'
 
 import styles from './style.module.css'
-import { Button } from '../common/btn'
 
 const backgroundScript = browser.runtime.connect({
   name: 'co.dothq.shield.ui.popup',
 })
+
+const getDomain = (url) =>
+  psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
+    .domain
 
 export class App extends Component {
   state = {
@@ -63,9 +67,7 @@ export class App extends Component {
           blockedURLs = blockedURLs
             .map((url) => ({
               num: 1,
-              url: psl.parse(
-                url.replace('https://', '').replace('http://', '').split('/')[0]
-              ).domain,
+              url: getDomain(url),
             }))
             .filter((curr, i, arr) => {
               const match = arr.findIndex((t) => t.url === curr.url)
@@ -83,8 +85,6 @@ export class App extends Component {
           const blockedNum = singleItem
           singleItem = 100 / singleItem
 
-          console.log(blockedURLs)
-
           this.setState({
             ads: blockedURLs.map((url, i) => ({
               label: url.url,
@@ -95,14 +95,52 @@ export class App extends Component {
           })
         }
       } else if (msg.type === PopupConn.returnWhitelist) {
+        // Get current tab
+        const tab = await browser.tabs.query({
+          active: true,
+          currentWindow: true,
+        })
+
+        const whitelist: string[] = msg.payload
+        const tabURL = getDomain(tab[0].url)
+
+        if (whitelist.indexOf(tabURL) !== -1) {
+          this.setState({ ...this.state, whitelisted: true })
+        } else {
+          this.setState({ ...this.state, whitelisted: false })
+        }
       }
     })
+
+    // Get assorted info from the background script
+    backgroundScript.postMessage({ type: PopupConn.getWhitelist })
     backgroundScript.postMessage({ type: PopupConn.getAds })
   }
 
-  render() {
-    console.log(this.state.ads)
+  async toggleWhitelist() {
+    // Common function
+    const tab = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    })
+    const tabURL = getDomain(tab[0].url)
 
+    if (this.state.whitelisted) {
+      // Remove from whitelist
+      backgroundScript.postMessage({
+        type: PopupConn.removeWhitelist,
+        payload: tabURL,
+      })
+    } else {
+      // Add to whitelist
+      backgroundScript.postMessage({
+        type: PopupConn.addWhitelist,
+        payload: tabURL,
+      })
+    }
+  }
+
+  render() {
     // TODO [#17]: Dark theme for popup
     // TODO [#18]: Move popup to URL bar
 
@@ -114,7 +152,12 @@ export class App extends Component {
           subtitle="Blocked"
         />
 
-        <Button isPrimary={true}>Hello world</Button>
+        <div className={styles.controls}>
+          <Button isPrimary={true} onClick={() => this.toggleWhitelist()}>
+            {this.state.whitelisted ? 'Allow' : 'Block'} ads and trackers on
+            this site
+          </Button>
+        </div>
       </div>
     )
   }

@@ -15,6 +15,11 @@
   width: 376px;
 }
 
+.controls {
+  display: grid;
+  margin: 24px;
+}
+
 .chart {
   width: 100%;
 }
