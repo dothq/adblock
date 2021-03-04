@@ -44,6 +44,8 @@ class SettingsApp extends Component<AppState> {
   render() {
     let settings = this.state.settings
 
+    // TODO: Restyle settings panel
+
     return (
       <div>
         <h1>Dot Shield Settings</h1>

@@ -103,6 +103,9 @@ export class App extends Component {
   render() {
     console.log(this.state.ads)
 
+    // TODO: Dark theme for popup
+    // TODO: Move popup to URL bar
+
     return (
       <div className={styles.container}>
         <Ring

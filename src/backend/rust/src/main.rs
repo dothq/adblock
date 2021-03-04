@@ -1,19 +1,17 @@
-// Note that to ru this code you have to run the following code in the rust directory
-// `rustup override set nightly`   
+// Note that to run this code you have to run the following code in the rust directory
+// `rustup override set nightly`
 #![feature(proc_macro)]
 #[macro_use]
-
 extern crate stdweb;
 
 use stdweb::js_export;
 
-
 #[js_export]
 fn init() {
-  stdweb::initialize();
-  js! {
-    console.log("hello from rust");
-  }
+    stdweb::initialize();
+    js! {
+      console.log("hello from rust");
+    }
 }
 
 fn main() {}

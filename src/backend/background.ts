@@ -25,6 +25,10 @@ const whitelist = new PermStore('whitelist', [])
 const requestHandler = (details: RequestListenerArgs) => {
   console.log('Blocked')
 
+  // TODO: Allow the option to whitelist sites
+  // TODO: Long term data collection
+  // TODO: Move data collection to rust
+
   // Record that this specific ad was seen on this tab
   // Check if the tab has been recorded
   if (typeof adsOnTabs[details.tabId] === 'undefined') {
