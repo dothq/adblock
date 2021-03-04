@@ -103,8 +103,8 @@ export class App extends Component {
   render() {
     console.log(this.state.ads)
 
-    // TODO: Dark theme for popup
-    // TODO: Move popup to URL bar
+    // TODO [$604080d075cb1c0008baf2f6]: Dark theme for popup
+    // TODO [$604080d075cb1c0008baf2f7]: Move popup to URL bar
 
     return (
       <div className={styles.container}>
