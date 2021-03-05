@@ -3,7 +3,7 @@
 import psl from 'psl'
 
 import { PopupConn, SettingsConn } from '../constants/settings'
-import { getBlockedDomains } from './domains'
+import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
@@ -14,8 +14,9 @@ let domainsBlocked = {}
 let adsOnTabs = {}
 
 // =================
-// Permanent storage code
+// Blocking related variable
 const whitelist = new PermStore('whitelist', [])
+const blacklist = new Blacklist()
 
 // =================
 // Blocking code
@@ -62,19 +63,25 @@ const requestHandler = (details: RequestListenerArgs) => {
  * Adds the event listener for blocking requests
  */
 const init = async () => {
-  const domainsToBlock = await getBlockedDomains()
+  // const domainsToBlock = await getBlockedDomains()
+  await blacklist.load()
 
   // Wait for storage objects to load
   await whitelist.load()
 
-  console.log(domainsToBlock)
+  console.log(blacklist.blacklist)
   console.log(whitelist.data)
 
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
-    { urls: domainsToBlock },
+    { urls: blacklist.blacklist },
     ['blocking']
   )
+
+  blacklist.cacheHandler(() => {
+    close()
+    init()
+  })
 }
 
 /**
