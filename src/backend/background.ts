@@ -69,9 +69,6 @@ const init = async () => {
   // Wait for storage objects to load
   await whitelist.load()
 
-  console.log(blacklist.blacklist)
-  console.log(whitelist.data)
-
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
     { urls: blacklist.blacklist },
