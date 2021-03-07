@@ -13,7 +13,9 @@ export class Blacklist {
 
   constructor() {
     // Initialize variables
-    this.blacklistCache = new PermStore('blacklistCache', [])
+    this.blacklistCache = new PermStore('blacklistCache', [
+      '*://*.doubleclick.net/',
+    ])
     this.blacklistExpiry = new PermStore(
       'blacklistExpiry',
       new Date('1:1 1/1/2000')
@@ -47,6 +49,7 @@ export class Blacklist {
 
         this.blacklistCache.data = blockList
         this.blacklistExpiry.data = cacheExpiry
+        this.blacklist = this.blacklistCache.data
 
         console.log('Download complete')
 
