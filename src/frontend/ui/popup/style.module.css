@@ -18,11 +18,12 @@
 .controls {
   display: grid;
   margin: 24px;
+  grid-gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-auto-columns: 1fr;
 }
 
-.chart {
-  width: 100%;
-}
-
-.chart .innertext {
+.controlDouble {
+  grid-area: 1 / 1 / 2 / 3;
 }

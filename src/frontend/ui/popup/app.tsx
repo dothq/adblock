@@ -153,9 +153,19 @@ export class App extends Component {
         />
 
         <div className={styles.controls}>
-          <Button isPrimary={true} onClick={() => this.toggleWhitelist()}>
+          <Button
+            isPrimary={true}
+            onClick={() => this.toggleWhitelist()}
+            className={styles.controlDouble}
+          >
             {this.state.whitelisted ? 'Block' : 'Allow'} ads and trackers on
             this site
+          </Button>
+          <Button onClick={() => window.open('./stats.html')}>
+            View statistics
+          </Button>
+          <Button onClick={() => window.open('./settings.html')}>
+            Settings
           </Button>
         </div>
       </div>
