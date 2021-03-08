@@ -44,7 +44,7 @@ class SettingsApp extends Component<AppState> {
   render() {
     let settings = this.state.settings
 
-    // TODO [#19]: Restyle settings panel
+    // TODO [#19]: Restyle settings panel and stats page
 
     return (
       <div>
