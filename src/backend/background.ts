@@ -36,7 +36,6 @@ const requestHandler = (details: RequestListenerArgs) => {
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
 
-  // TODO [#12]: Long term data collection
   // TODO [#13]: Move data collection to rust
 
   // Record that this specific ad was seen on this tab
