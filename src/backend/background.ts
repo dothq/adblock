@@ -33,6 +33,7 @@ const getDomain = (url) =>
 const requestHandler = (details: RequestListenerArgs) => {
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
+  if (blacklist.blacklist.includes(details.originUrl)){
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
 
@@ -57,6 +58,7 @@ const requestHandler = (details: RequestListenerArgs) => {
   ltBlocked.storeData()
 
   return { cancel: true }
+  }
 }
 
 /**
@@ -72,7 +74,7 @@ const init = async () => {
   console.time('webRequest')
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
-    { urls: blacklist.blacklist },
+    { urls: ["<all_urls>"] },
     ['blocking']
   )
   console.timeEnd('webRequest')
