@@ -11,7 +11,7 @@ export class PermStore<DataType> {
     this.loadingPromise = this.loadData(defaultData)
   }
 
-  private async loadData(defaultData: DataType) {
+  protected async loadData(defaultData: DataType) {
     const localStorage = await browser.storage.local.get()
     const data: any = localStorage[this.key]
 
