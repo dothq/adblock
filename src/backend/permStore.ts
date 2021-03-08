@@ -1,7 +1,7 @@
 export class PermStore<DataType> {
-  key: string
-  memData: DataType
-  loadingPromise: Promise<void>
+  private key: string
+  private memData: DataType
+  private loadingPromise: Promise<void>
 
   constructor(key: string, defaultData: DataType) {
     // Assign variable
@@ -18,7 +18,7 @@ export class PermStore<DataType> {
     this.memData = (data as DataType) || defaultData
   }
 
-  private async storeData() {
+  async storeData() {
     const storageQuery = {}
     storageQuery[this.key] = this.data
     await browser.storage.local.set(storageQuery)

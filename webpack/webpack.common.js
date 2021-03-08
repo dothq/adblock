@@ -13,6 +13,7 @@ module.exports = {
       __dirname,
       `${srcDir}/frontend/ui/settings/settings.tsx`
     ),
+    stats: path.join(__dirname, `${srcDir}/frontend/ui/stats/stats.ts`),
     background: path.join(__dirname, `${srcDir}/backend/background.ts`),
   },
   output: {

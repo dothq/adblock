@@ -25,3 +25,9 @@ export enum PopupConn {
   getWhitelist = 'type.getWhitelist',
   returnWhitelist = 'type.returnWhitelist',
 }
+
+export enum StatsConn {
+  // Get LT data
+  getLT = 'type.getLT',
+  returnLT = 'type.returnLT',
+}

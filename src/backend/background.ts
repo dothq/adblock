@@ -2,16 +2,17 @@
 
 import psl from 'psl'
 
-import { PopupConn, SettingsConn } from '../constants/settings'
+import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
 import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
 // const genPromise = require('./rust/src/main.rs')
 
-let blockedNum = 0
-let domainsBlocked = {}
+// ================
+// Data collection
 let adsOnTabs = {}
+const ltBlocked = new PermStore('longTermBlockList', {})
 
 // =================
 // Blocking related variable
@@ -35,8 +36,6 @@ const requestHandler = (details: RequestListenerArgs) => {
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
 
-  console.log('Blocked')
-
   // TODO [#12]: Long term data collection
   // TODO [#13]: Move data collection to rust
 
@@ -49,12 +48,14 @@ const requestHandler = (details: RequestListenerArgs) => {
   // Push the url of the current tab onto the array
   adsOnTabs[details.tabId].push(details.url)
 
-  // if (typeof domainsBlocked[details.url] == 'undefined') {
-  //   domainsBlocked[details.url] = 0
-  // }
+  const date = new Date()
+  const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
 
-  // blockedNum++
-  // domainsBlocked[details.url]++
+  if (typeof ltBlocked.data[currentDate] == 'undefined') {
+    ltBlocked.data[currentDate] = 0
+  }
+  ltBlocked.data[currentDate]++
+  ltBlocked.storeData()
 
   return { cancel: true }
 }
@@ -69,11 +70,13 @@ const init = async () => {
   // Wait for storage objects to load
   await whitelist.load()
 
+  console.time('webRequest')
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
     { urls: blacklist.blacklist },
     ['blocking']
   )
+  console.timeEnd('webRequest')
 
   blacklist.cacheHandler(() => {
     close()
@@ -141,6 +144,17 @@ tempPort('co.dothq.shield.ui.settings', (p) => {
 
       close()
       init()
+    }
+  })
+})
+
+// Interacts with the stats ui
+tempPort('co.dothq.shield.ui.stats', (p) => {
+  console.log('Connected')
+  p.onMessage.addListener((msg: any) => {
+    if (msg.type == StatsConn.getLT) {
+      // Send back LT stats
+      p.postMessage({ type: StatsConn.returnLT, payload: ltBlocked.data })
     }
   })
 })

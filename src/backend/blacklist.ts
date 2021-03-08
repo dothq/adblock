@@ -4,10 +4,10 @@ import { PermStore } from './permStore'
 export type BlacklistData = string[]
 
 export class Blacklist {
-  loadingPromise: Promise<void>
+  private loadingPromise: Promise<void>
 
-  blacklistCache: PermStore<BlacklistData>
-  blacklistExpiry: PermStore<Date>
+  private blacklistCache: PermStore<BlacklistData>
+  private blacklistExpiry: PermStore<Date>
 
   blacklist: string[] = []
 
@@ -26,11 +26,14 @@ export class Blacklist {
   }
 
   private async loadData() {
+    console.log('Loading cached blacklist...')
+    console.time('Loading cached blacklist')
+
     await this.blacklistCache.load()
     await this.blacklistExpiry.load()
 
-    console.log('Loading cached blacklist...')
     this.blacklist = this.blacklistCache.data
+    console.timeEnd('Loading cached blacklist')
   }
 
   cacheHandler(callback: () => void) {
