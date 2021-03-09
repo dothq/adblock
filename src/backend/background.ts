@@ -7,7 +7,8 @@ import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
-// const genPromise = require('./rust/src/main.rs')
+const genPromise = require('./rust/src/main.rs')
+let wasm
 
 // ================
 // Data collection
@@ -33,31 +34,31 @@ const getDomain = (url) =>
 const requestHandler = (details: RequestListenerArgs) => {
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
-  if (blacklist.blacklist.includes(details.originUrl)){
-  const domain = getDomain(details.originUrl)
-  if (whitelist.data.indexOf(domain) !== -1) return
+  if (blacklist.blacklist.includes(details.url)) {
+    const domain = getDomain(details.originUrl)
+    if (whitelist.data.indexOf(domain) !== -1) return
 
-  // TODO [#13]: Move data collection to rust
+    // TODO [#13]: Move data collection to rust
 
-  // Record that this specific ad was seen on this tab
-  // Check if the tab has been recorded
-  if (typeof adsOnTabs[details.tabId] === 'undefined') {
-    // Give it an empty array of values
-    adsOnTabs[details.tabId] = []
-  }
-  // Push the url of the current tab onto the array
-  adsOnTabs[details.tabId].push(details.url)
+    // Record that this specific ad was seen on this tab
+    // Check if the tab has been recorded
+    if (typeof adsOnTabs[details.tabId] === 'undefined') {
+      // Give it an empty array of values
+      adsOnTabs[details.tabId] = []
+    }
+    // Push the url of the current tab onto the array
+    adsOnTabs[details.tabId].push(details.url)
 
-  const date = new Date()
-  const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+    const date = new Date()
+    const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
 
-  if (typeof ltBlocked.data[currentDate] == 'undefined') {
-    ltBlocked.data[currentDate] = 0
-  }
-  ltBlocked.data[currentDate]++
-  ltBlocked.storeData()
+    if (typeof ltBlocked.data[currentDate] == 'undefined') {
+      ltBlocked.data[currentDate] = 0
+    }
+    ltBlocked.data[currentDate]++
+    ltBlocked.storeData()
 
-  return { cancel: true }
+    return { cancel: true }
   }
 }
 
@@ -74,7 +75,7 @@ const init = async () => {
   console.time('webRequest')
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
-    { urls: ["<all_urls>"] },
+    { urls: ['<all_urls>'] },
     ['blocking']
   )
   console.timeEnd('webRequest')
@@ -91,9 +92,6 @@ const init = async () => {
 const close = () => {
   browser.webRequest.onBeforeRequest.removeListener(requestHandler)
 }
-
-// Call the init function, so the blocker starts by default
-init()
 
 // =================
 // External interactions
@@ -178,11 +176,11 @@ const tabUpdated = ({ tabId }) => {
 
 browser.tabs.onRemoved.addListener(tabRemoved)
 browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
+;(async () => {
+  // Wait for the rust code to load
+  wasm = await genPromise
+  wasm.init()
 
-//* Rust code stuff. Disabled for the moment, because we aren't using it
-// To reenable, uncomment the following lines, the import statement at the top of
-// the file, and the relevant comment in /webpack/webpack.common.js
-// ;(async () => {
-//   const gen = await genPromise
-//   gen.init()
-// })()
+  // Call the init function, so the blocker starts by default
+  init()
+})()

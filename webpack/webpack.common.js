@@ -20,6 +20,11 @@ module.exports = {
     path: path.join(__dirname, '../dist'),
     filename: '[name].js',
   },
+  // optimization: {
+  //   splitChunks: {
+  //     chunks: 'all',
+  //   },
+  // },
   module: {
     rules: [
       {
@@ -47,19 +52,17 @@ module.exports = {
         exclude: /\.module\.css$/,
       },
       //* File loader for rust code
-      // This has been disabled for performance and ease of development reasons as
-      // we don't currently need it
-      // {
-      //   test: /\.rs$/,
-      //   exclude: /node_modules/,
-      //   use: {
-      //     loader: 'rust-wasm-loader',
-      //     options: {
-      //       // The path to the webpack output relative to the project root
-      //       path: 'dest',
-      //     },
-      //   },
-      // },
+      {
+        test: /\.rs$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'rust-wasm-loader',
+          options: {
+            // The path to the webpack output relative to the project root
+            path: 'dest',
+          },
+        },
+      },
     ],
   },
   resolve: {
@@ -87,17 +90,6 @@ module.exports = {
         },
       ],
     }),
-
-    // Copy all of the html files in the html folder to public
-    // ...htmlFiles.map(
-    //   (file) =>
-    //     new HtmlWebpackPlugin({
-    //       inject: false,
-    //       hash: false,
-    //       template: `src/frontend/html/${file}`,
-    //       filename: `./${file}`,
-    //     })
-    // ),
 
     // Nice clean progress bar for webpack
     new WebpackBar(),
