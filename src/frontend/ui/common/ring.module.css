@@ -22,9 +22,9 @@
 }
 
 /* Links inside the dropdown */
-.dropdownContent a {
-  color: black;
-  padding: 12px 16px;
+.dropdownContent * {
+  color: white !important;
+  padding: 4px 6px;
   text-decoration: none;
   display: block;
 }

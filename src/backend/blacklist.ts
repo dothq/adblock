@@ -42,6 +42,8 @@ export class Blacklist {
         console.log('Downloading blacklist from shieldDB...')
 
         // TODO [#15]: Combine multiple blocklists
+        // TODO: Add CNAME filters to the blacklist
+        // TODO Note: https://github.com/AdguardTeam/cname-trackers
 
         const blockList = (
           await (await fetch(SHIELD_DB_ADS_AND_TRACKERS)).json()
