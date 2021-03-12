@@ -48,18 +48,19 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
         exclude: /\.module\.css$/,
       },
-      //* File loader for rust code
-      // {
-      //   test: /\.rs$/,
-      //   exclude: /node_modules/,
-      //   use: {
-      //     loader: 'rust-wasm-loader',
-      //     options: {
-      //       // The path to the webpack output relative to the project root
-      //       path: 'dest',
-      //     },
-      //   },
-      // },
+      {
+        test: /\.woff(2)?$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: './font/[hash].[ext]',
+              mimetype: 'application/font-woff',
+            },
+          },
+        ],
+      },
     ],
   },
 

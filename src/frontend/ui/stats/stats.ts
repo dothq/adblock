@@ -1,6 +1,8 @@
 import Chart from 'chart.js'
 import { StatsConn } from '../../../constants/settings'
 
+import '../common/fonts.css'
+
 const epocDate: any = new Date(new Date().getTime() / 1000)
 
 const daysSinceEpoch = (date: any) =>
@@ -14,6 +16,8 @@ const ctx = (document.getElementById(
   'blockedTime'
 ) as HTMLCanvasElement).getContext('2d')
 const totalBlockedEl = document.getElementById('totalBlocked')
+
+// TODO: Restyle stats page
 
 // Load stats on receiving them
 backgroundScript.onMessage.addListener((msg: any) => {
