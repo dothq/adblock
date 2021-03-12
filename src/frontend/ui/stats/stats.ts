@@ -17,7 +17,7 @@ const ctx = (document.getElementById(
 ) as HTMLCanvasElement).getContext('2d')
 const totalBlockedEl = document.getElementById('totalBlocked')
 
-// TODO [$604b2676f49bfd000874b026]: Restyle stats page
+// TODO [#23]: Restyle stats page
 
 // Load stats on receiving them
 backgroundScript.onMessage.addListener((msg: any) => {
