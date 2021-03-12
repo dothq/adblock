@@ -8,7 +8,11 @@ import { PermStore } from './permStore'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
 let wasm = require('./rust/pkg')
-// const wasm = require('../../pkg')
+
+// ================
+// Performance settings
+const blockingChunks = 10000 // Items. Splits it into chunks of 0-5ms on my computer
+const chunkSeparator = 10 // ms
 
 // ================
 // Data collection
@@ -62,6 +66,9 @@ const requestHandler = (details: RequestListenerArgs) => {
   }
 }
 
+const sleep = (time: number) =>
+  new Promise((resolve) => setTimeout(() => resolve(false), time))
+
 /**
  * Adds the event listener for blocking requests
  */
@@ -72,29 +79,27 @@ const init = async () => {
   // Wait for storage objects to load
   await whitelist.load()
 
-  console.log(blacklist.blacklist)
+  // console.log(blacklist.blacklist)
 
-  console.time('load')
-  wasm.init_blacklist(blacklist.blacklist)
-  console.timeEnd('load')
+  // Loading each webRequest takes a long time. To combat this and increase the
+  // browsers responsiveness whilst loading the block list, we separate the
+  // blocklist into chunks determined by blockingChunks. These are then loaded
+  // and the script is slept to allow requests to complete
 
-  console.time('10K url tests')
+  console.time('All webRequests')
+  for (let i = 0; i < blacklist.blacklist.length; i += blockingChunks) {
+    console.time('webRequest')
+    browser.webRequest.onBeforeRequest.addListener(
+      requestHandler,
+      { urls: blacklist.blacklist.slice(i, i + blockingChunks) },
+      ['blocking']
+    )
+    console.timeEnd('webRequest')
 
-  for (let i = 0; i < 1; i++) {
-    // wasm.test_blacklist('https://doubleclick.net/abcd')
+    // Sleep to allow other requests to be performed
+    await sleep(chunkSeparator)
   }
-
-  console.timeEnd('10K url tests')
-
-  console.log(wasm.test_blacklist('https://a.doubleclick.net/abcd'))
-
-  console.time('webRequest')
-  browser.webRequest.onBeforeRequest.addListener(
-    requestHandler,
-    { urls: ['<all_urls>'] },
-    ['blocking']
-  )
-  console.timeEnd('webRequest')
+  console.timeEnd('All webRequests')
 
   blacklist.cacheHandler(() => {
     close()
@@ -195,7 +200,6 @@ browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 ;(async () => {
   // Wait for the rust code to load
   wasm = await wasm
-  console.log(wasm)
 
   // Call the init function, so the blocker starts by default
   init()
