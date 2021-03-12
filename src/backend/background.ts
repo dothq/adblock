@@ -7,8 +7,8 @@ import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
-const genPromise = require('./rust/src/main.rs')
-let wasm
+let wasm = require('./rust/pkg')
+// const wasm = require('../../pkg')
 
 // ================
 // Data collection
@@ -71,6 +71,22 @@ const init = async () => {
 
   // Wait for storage objects to load
   await whitelist.load()
+
+  console.log(blacklist.blacklist)
+
+  console.time('load')
+  wasm.init_blacklist(blacklist.blacklist)
+  console.timeEnd('load')
+
+  console.time('10K url tests')
+
+  for (let i = 0; i < 1; i++) {
+    // wasm.test_blacklist('https://doubleclick.net/abcd')
+  }
+
+  console.timeEnd('10K url tests')
+
+  console.log(wasm.test_blacklist('https://a.doubleclick.net/abcd'))
 
   console.time('webRequest')
   browser.webRequest.onBeforeRequest.addListener(
@@ -178,8 +194,8 @@ browser.tabs.onRemoved.addListener(tabRemoved)
 browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 ;(async () => {
   // Wait for the rust code to load
-  wasm = await genPromise
-  wasm.init()
+  wasm = await wasm
+  console.log(wasm)
 
   // Call the init function, so the blocker starts by default
   init()
