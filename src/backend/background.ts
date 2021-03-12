@@ -38,32 +38,31 @@ const getDomain = (url) =>
 const requestHandler = (details: RequestListenerArgs) => {
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
-  if (blacklist.blacklist.includes(details.url)) {
-    const domain = getDomain(details.originUrl)
-    if (whitelist.data.indexOf(domain) !== -1) return
 
-    // TODO [#13]: Move data collection to rust
+  const domain = getDomain(details.originUrl)
+  if (whitelist.data.indexOf(domain) !== -1) return
 
-    // Record that this specific ad was seen on this tab
-    // Check if the tab has been recorded
-    if (typeof adsOnTabs[details.tabId] === 'undefined') {
-      // Give it an empty array of values
-      adsOnTabs[details.tabId] = []
-    }
-    // Push the url of the current tab onto the array
-    adsOnTabs[details.tabId].push(details.url)
+  // TODO [#13]: Move data collection to rust
 
-    const date = new Date()
-    const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
-
-    if (typeof ltBlocked.data[currentDate] == 'undefined') {
-      ltBlocked.data[currentDate] = 0
-    }
-    ltBlocked.data[currentDate]++
-    ltBlocked.storeData()
-
-    return { cancel: true }
+  // Record that this specific ad was seen on this tab
+  // Check if the tab has been recorded
+  if (typeof adsOnTabs[details.tabId] === 'undefined') {
+    // Give it an empty array of values
+    adsOnTabs[details.tabId] = []
   }
+  // Push the url of the current tab onto the array
+  adsOnTabs[details.tabId].push(details.url)
+
+  const date = new Date()
+  const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+
+  if (typeof ltBlocked.data[currentDate] == 'undefined') {
+    ltBlocked.data[currentDate] = 0
+  }
+  ltBlocked.data[currentDate]++
+  ltBlocked.storeData()
+
+  return { cancel: true }
 }
 
 const sleep = (time: number) =>
