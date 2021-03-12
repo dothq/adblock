@@ -5,7 +5,7 @@ import {
 } from '../constants/settings'
 import { PermStore } from './permStore'
 
-export class Setting extends PermStore<SettingsStorage> {
+export class Settings extends PermStore<SettingsStorage> {
   constructor() {
     super('settings', DEFAULT_SETTINGS)
   }

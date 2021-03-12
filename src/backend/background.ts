@@ -5,6 +5,7 @@ import psl from 'psl'
 import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
 import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
+import { Settings } from './settings'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
 let wasm = require('./rust/pkg')
@@ -13,6 +14,10 @@ let wasm = require('./rust/pkg')
 // Performance settings
 const blockingChunks = 10000 // Items. Splits it into chunks of 0-5ms on my computer
 const chunkSeparator = 10 // ms
+
+// ================
+// User settings
+const settings = new Settings()
 
 // ================
 // Data collection
@@ -100,7 +105,9 @@ const init = async () => {
   }
   console.timeEnd('All webRequests')
 
-  blacklist.cacheHandler(() => {
+  await settings.load()
+
+  blacklist.cacheHandler(settings.data, () => {
     close()
     init()
   })
