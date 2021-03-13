@@ -32,6 +32,12 @@ jobs:
           git config --global user.email "72629236+dothq-robot@users.noreply.github.com"
           git status
 
+      - name: Install wasm-pack...
+        uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          # Optional version of wasm-pack to install(eg. 'v0.9.1', 'latest')
+          version: 'latest'
+
       - name: Install...
         run: yarn
 
