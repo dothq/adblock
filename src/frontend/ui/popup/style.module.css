@@ -1,5 +1,5 @@
 :root {
-  --bg: #ffffff;
+  /* --bg: #ffffff; */
 }
 
 /*
@@ -10,8 +10,12 @@
 }
 */
 
+body {
+  background-color: var(--background-color);
+  color: var(--color);
+}
+
 .container {
-  background-color: var(--bg);
   width: 376px;
 }
 

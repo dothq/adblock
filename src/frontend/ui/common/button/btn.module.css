@@ -6,7 +6,7 @@
 
 .btn.primary {
   background-color: var(--btn-primary);
-  color: #fff;
+  color: var(--btn-primary-color);
 }
 
 .btn.primary:hover {
@@ -14,9 +14,10 @@
 }
 
 .btn.secondary {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--btn-secondary);
+  color: var(--btn-secondary-color);
 }
 
 .btn.secondary:hover {
-  background: rgba(0, 0, 0, 0.075);
+  background: var(--btn-secondary-hover);
 }

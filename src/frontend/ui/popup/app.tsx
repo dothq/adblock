@@ -21,7 +21,9 @@ export class App extends Component {
       {
         label: 'None',
         value: 100,
-        color: '#C4C4C4',
+        color: getComputedStyle(document.documentElement).getPropertyValue(
+          '--background-color-secondary'
+        ),
       },
     ],
     blocked: 0,
@@ -140,9 +142,6 @@ export class App extends Component {
   }
 
   render() {
-    // TODO [#17]: Dark theme for popup
-    // TODO [#18]: Move popup to URL bar
-
     return (
       <div className={styles.container}>
         <Ring
