@@ -1,6 +1,6 @@
 {
   "name": "Dot Shield",
-  "version": "0.1.0.a3",
+  "version": "0.1.0pre3",
   "description": "Dot Shield: A fast and simple ad blocker for dot browser",
   "developer": { "name": "DotHQ", "url": "https://dothq.co/" },
   "icons": { "48": "icons/shield.svg", "96": "icons/shield.svg" },
