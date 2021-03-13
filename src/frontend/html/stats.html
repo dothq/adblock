@@ -10,10 +10,10 @@
   <article>
     <h1>Dot shield statistics</h1>
 
-    <div>
+    <div class="stats">
       <p>Total files blocked: <span id="totalBlocked">--</span></p>
-      <p>Time saved: <span id="totalTime">--</span><small>1</small></p>
-      <p>Bandwidth saved: <span id="totalBandwidth">--</span><small>1</small></p>
+      <p>Time saved: <span id="totalTime">--</span><sub>1</sub></p>
+      <p>Bandwidth saved: <span id="totalBandwidth">--</span><sub>1</sub></p>
     </div>
 
     <canvas id="blockedTime"></canvas>
@@ -24,6 +24,28 @@
     </ol>
   </article>
 
+  <style>
+    body {
+      margin: 0;
+      background-color: var(--background-color);
+      color: var(--color);
+    }
+
+    article {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .stats p span {
+      font-weight: bold;
+    }
+  </style>
+
   <script src="./stats.js"></script>
 </body>
-</html>
+</html> 

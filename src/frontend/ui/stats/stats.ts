@@ -1,12 +1,12 @@
 import Chart from 'chart.js'
 import { StatsConn } from '../../../constants/settings'
 
-import '../common/fonts.css'
+import '../common/common.css'
 
-const epocDate: any = new Date(new Date().getTime() / 1000)
-
-const daysSinceEpoch = (date: any) =>
-  Math.floor(Math.abs(date - epocDate) / 1000 / 86400)
+// Set the default color
+Chart.defaults.global.defaultFontColor = getComputedStyle(
+  document.documentElement
+).getPropertyValue('--color')
 
 const backgroundScript = browser.runtime.connect({
   name: 'co.dothq.shield.ui.stats',
@@ -17,8 +17,6 @@ const ctx = (document.getElementById(
 ) as HTMLCanvasElement).getContext('2d')
 const totalBlockedEl = document.getElementById('totalBlocked')
 
-// TODO [#23]: Restyle stats page
-
 // Load stats on receiving them
 backgroundScript.onMessage.addListener((msg: any) => {
   if (msg.type == StatsConn.returnLT) {
@@ -28,7 +26,6 @@ backgroundScript.onMessage.addListener((msg: any) => {
 
     const { payload } = msg
     for (const key in payload) {
-      const daysEpoch = daysSinceEpoch(new Date(key))
       const blocked = payload[key]
       totalBlocked += blocked
 
@@ -59,7 +56,7 @@ backgroundScript.onMessage.addListener((msg: any) => {
         plugins: {
           title: {
             display: true,
-            text: 'Chart.js Line Chart',
+            text: 'Blocked sources',
           },
           tooltip: {
             mode: 'index',

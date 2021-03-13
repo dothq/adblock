@@ -5,7 +5,7 @@ export const SHIELD_DB_FAKE_NEWS =
   'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/FAKE_NEWS.json'
 
 export const SHIELD_DB_GAMBLING =
-  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/GAMING.json'
+  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/GAMBLING.json'
 
 export const SHIELD_DB_SOCIAL =
   'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/SOCIAL.json'

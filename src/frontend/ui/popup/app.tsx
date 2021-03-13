@@ -3,8 +3,7 @@ import psl from 'psl'
 
 import { PopupConn } from '../../../constants/settings'
 import { graphColors } from '../../constants/colors'
-import { Ring } from '../common/ring'
-import { Button } from '../common'
+import { Button, Ring } from '../common'
 
 import styles from './style.module.css'
 

@@ -1,8 +1,10 @@
 /// <reference types="web-ext-types"/>
 
 import React, { Component } from 'react'
+
 import { DEFAULT_SETTINGS, SettingsConn } from '../../../constants/settings'
 import { Button, Checkbox } from '../common'
+import styles from './settings.module.css'
 
 // Connect to the background script
 const backgroundScript = browser.runtime.connect({
@@ -44,14 +46,13 @@ class SettingsApp extends Component<AppState> {
   render() {
     let settings = this.state.settings
 
-    // TODO [#19]: Restyle settings panel and stats page
-
     return (
-      <div>
+      <div className={styles.page}>
         <h1>Dot Shield Settings</h1>
 
         {settings && (
           <>
+            <h2>Filter lists</h2>
             <div>
               <Checkbox
                 value={settings.lists.common}
