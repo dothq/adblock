@@ -83,26 +83,47 @@ const init = async () => {
   // Wait for storage objects to load
   await whitelist.load()
 
-  // console.log(blacklist.blacklist)
+  console.log(blacklist.blacklist.length)
 
   // Loading each webRequest takes a long time. To combat this and increase the
   // browsers responsiveness whilst loading the block list, we separate the
   // blocklist into chunks determined by blockingChunks. These are then loaded
   // and the script is slept to allow requests to complete
 
+  // We can't just use a for loop because that ignores the last few thousand domains
+  // if blocking chunks is set too high. Hence why we use a while loop
+  let done = false
+  let currIndex = 0
+
+  // We store the length in a variable because it won't change whilst we are
+  // looping, so we can save some processing time
+  const arrayLength = blacklist.blacklist.length
+
+  // This starts a total timer, helpful for debugging and performance purposes
   console.time('All webRequests')
-  for (let i = 0; i < blacklist.blacklist.length; i += blockingChunks) {
-    console.time('webRequest')
-    browser.webRequest.onBeforeRequest.addListener(
-      requestHandler,
-      { urls: blacklist.blacklist.slice(i, i + blockingChunks) },
-      ['blocking']
+
+  // While we are not done with the blacklist, we will continue to loop through it
+  while (!done) {
+    // This is moved out of the the webrequest function to keep it out of the webrequest
+    // performance measurements
+    const urls = blacklist.blacklist.slice(
+      currIndex,
+      currIndex + blockingChunks
     )
+
+    console.time('webRequest')
+    // Load the webRequests into the browser
+    browser.webRequest.onBeforeRequest.addListener(requestHandler, { urls }, [
+      'blocking',
+    ])
     console.timeEnd('webRequest')
 
-    // Sleep to allow other requests to be performed
-    await sleep(chunkSeparator)
+    // Increment and check if we are done
+    currIndex += blockingChunks
+    if (currIndex > arrayLength) done = true
   }
+
+  console.log(currIndex)
   console.timeEnd('All webRequests')
 
   await settings.load()

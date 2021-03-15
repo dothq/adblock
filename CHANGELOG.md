@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- All the items in the blocklist are now loaded
+
 ## [0.1.0pre3]
 
 ### Added
