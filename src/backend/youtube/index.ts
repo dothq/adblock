@@ -10,6 +10,8 @@
 // Keep a log of the current video source so we can check if it has changed
 let currentSrc = ''
 
+let interval: NodeJS.Timeout
+
 // This will be run whenever the video time changes, so we can compare the source
 // to see if they have committed a sneaky and changed the URL on us
 const videoUpdate = () => {
@@ -17,22 +19,39 @@ const videoUpdate = () => {
     // Youtube has committed a sneaky and changed the URL
     currentSrc = this.src
 
-    // Grab the skip button
-    const skipButton: HTMLDivElement = document.querySelector(
-      '.ytp-ad-text.ytp-ad-skip-button-text'
-    )
+    interval = setInterval(() => {
+      // Grab the skip button
+      const skipButton: HTMLDivElement = document.querySelector(
+        '.ytp-ad-text.ytp-ad-skip-button-text'
+      )
 
-    // If the skip button does exists
-    if (skipButton) {
-      // Lets "smash that skip button"
-      skipButton.click()
-    }
+      // If the skip button does exists
+      if (skipButton) {
+        // Lets "smash that skip button"
+        skipButton.click()
+
+        clearInterval(interval)
+      }
+    }, 10)
   }
 }
 
 // We can override all of the videos on youtube because I am lazy. HTMLMediaElement
 // encompasses audio as well, so thats fun
 const originalPlay = HTMLMediaElement.prototype.play
+const originalVideoPlay = HTMLVideoElement.prototype.play
+HTMLVideoElement.prototype.play = () => {
+  // TODO: Make a script that removes console.logs from production
+  console.log('Play')
+  // Here we can do whatever we want, like add event listeners
+  // Remove any existing event listeners specific to us to stop a memory leak
+  this.removeEventListener('timeupdate', videoUpdate)
+  // And add a new event listener to the video
+  this.addEventListener('timeupdate', videoUpdate)
+
+  // Now we call the original function as if nothing happened
+  return originalVideoPlay()
+}
 HTMLMediaElement.prototype.play = () => {
   // TODO [#24]: Make a script that removes console.logs from production
   console.log('Play')
