@@ -118,6 +118,8 @@ const init = async () => {
     ])
     console.timeEnd('webRequest')
 
+    await sleep(chunkSeparator)
+
     // Increment and check if we are done
     currIndex += blockingChunks
     if (currIndex > arrayLength) done = true
