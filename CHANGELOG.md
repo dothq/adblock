@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Custom blocking script for Youtube
+
 ### Fixed
 
 - All the items in the blocklist are now loaded
+- Fix chunking to improve load time performance
 
 ## [0.1.0pre3]
 
