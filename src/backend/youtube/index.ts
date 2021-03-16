@@ -1,4 +1,4 @@
-// TODO [$605059a082bb71000891a63b]: Check the whitelist to see if youtube has been whitelisted
+// TODO [#25]: Check the whitelist to see if youtube has been whitelisted
 // Note that google really doesn't want ads blocked on youtube, hence why
 // the default adblock behavior doesn't work properly. Instead we need to create
 // a custom blocker that stops ads from being displayed. A really simple bodge
@@ -30,7 +30,7 @@ const videoUpdate = () => {
       if (skipButton) {
         // Lets "smash that skip button"
         skipButton.click()
-        // TODO [$605059a082bb71000891a63c]: Automatically remove console.log's in production
+        // TODO [#26]: Automatically remove console.log's in production
         // Provide feedback in the console
         console.log('Video was skipped')
         // Stop the loop
