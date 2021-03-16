@@ -10,6 +10,7 @@
 // Keep a log of the current video source so we can check if it has changed
 let currentSrc = ''
 
+// We will keep looking for that button until we find it, then we will click it
 let interval: NodeJS.Timeout
 
 // This will be run whenever the video time changes, so we can compare the source
@@ -29,38 +30,27 @@ const videoUpdate = () => {
       if (skipButton) {
         // Lets "smash that skip button"
         skipButton.click()
-
+        // Provide feedback in the console
+        console.log('Video was skipped')
+        // Stop the loop
         clearInterval(interval)
       }
     }, 10)
   }
 }
 
-// We can override all of the videos on youtube because I am lazy. HTMLMediaElement
-// encompasses audio as well, so thats fun
-const originalPlay = HTMLMediaElement.prototype.play
-const originalVideoPlay = HTMLVideoElement.prototype.play
-HTMLVideoElement.prototype.play = () => {
-  // TODO: Make a script that removes console.logs from production
-  console.log('Play')
-  // Here we can do whatever we want, like add event listeners
-  // Remove any existing event listeners specific to us to stop a memory leak
-  this.removeEventListener('timeupdate', videoUpdate)
-  // And add a new event listener to the video
-  this.addEventListener('timeupdate', videoUpdate)
+// Lets add the videos via a loop
+setInterval(() => {
+  // Grab all of the video elements in the page
+  const videoElements = document.getElementsByTagName('video')
 
-  // Now we call the original function as if nothing happened
-  return originalVideoPlay()
-}
-HTMLMediaElement.prototype.play = () => {
-  // TODO [#24]: Make a script that removes console.logs from production
-  console.log('Play')
-  // Here we can do whatever we want, like add event listeners
-  // Remove any existing event listeners specific to us to stop a memory leak
-  this.removeEventListener('timeupdate', videoUpdate)
-  // And add a new event listener to the video
-  this.addEventListener('timeupdate', videoUpdate)
+  // Loop through them all
+  for (let i = 0; i < videoElements.length; i++) {
+    const video = videoElements[i]
 
-  // Now we call the original function as if nothing happened
-  return originalPlay()
-}
+    // Remove any existing event listeners specific to us to stop a memory leak
+    video.removeEventListener('timeupdate', videoUpdate)
+    // And add a new event listener to the video
+    video.addEventListener('timeupdate', videoUpdate)
+  }
+}, 100)
