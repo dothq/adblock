@@ -4,8 +4,8 @@
 // a custom blocker that stops ads from being displayed. A really simple bodge
 // is to just click the skip button instantly and seem like we have properly skipped
 // the ad. The skip button ad is currently .ytp-ad-text.ytp-ad-skip-button-text
-//
-// Additionally #player-ads and ytd-promoted-sparkles-web-renderer shows up below the video and can be hidden
+
+import './ads.css'
 
 setInterval(() => {
   // Grab the skip button
@@ -22,3 +22,7 @@ setInterval(() => {
     console.log('Video was skipped')
   }
 }, 100)
+
+console.log(
+  '================================\nDot Shield is enabled on youtube.com\nWe will try to block all ads on this webpage'
+)

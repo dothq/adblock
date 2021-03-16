@@ -1,0 +1,17 @@
+/*
+  This file hides all of the ad elements on the youtube webpage
+
+  #player-ads and ytd-promoted-sparkles-web-renderer shows up below the video and can be hidden
+
+  #masthead-ad is on the home page
+*/
+
+#player-ads,
+ytd-promoted-sparkles-web-renderer {
+  display: none;
+}
+
+#masthead-ad,
+ytd-banner-promo-renderer {
+  display: none;
+}
