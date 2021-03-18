@@ -16,7 +16,7 @@ body {
 }
 
 .container {
-  width: 376px;
+  padding: 6px;
 }
 
 .controls {
@@ -30,4 +30,23 @@ body {
 
 .controlDouble {
   grid-area: 1 / 1 / 2 / 3;
+}
+
+.accent {
+  border-radius: 8px;
+  height: 220px;
+  background-color: #b80000;
+  padding: 24px;
+  transition: 0.4s background-color;
+}
+
+.accentDisabled {
+  background-color: #e9ebee !important;
+}
+
+.itemBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
