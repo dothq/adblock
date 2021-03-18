@@ -1,19 +1,14 @@
 /// <reference types="web-ext-types"/>
 
 import psl from 'psl'
+import { FiltersEngine, Request } from '@cliqz/adblocker'
 
 import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
-import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
 import { Settings } from './settings'
 import tempPort from './tempPort'
 import { RequestListenerArgs } from './types'
 let wasm = require('./rust/pkg')
-
-// ================
-// Performance settings
-const blockingChunks = 10000 // Items. Splits it into chunks of 0-5ms on my computer
-const chunkSeparator = 10 // ms
 
 // ================
 // User settings
@@ -24,10 +19,13 @@ const settings = new Settings()
 let adsOnTabs = {}
 const ltBlocked = new PermStore('longTermBlockList', {})
 
+// ===============
+// Blocking engine
+let engine: FiltersEngine
+
 // =================
 // Blocking related variable
 const whitelist = new PermStore('whitelist', [])
-const blacklist = new Blacklist()
 
 // =================
 // Blocking code
@@ -43,6 +41,11 @@ const getDomain = (url) =>
 const requestHandler = (details: RequestListenerArgs) => {
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
+
+  // Check if the condition is in the blocklist
+  const { match } = engine.match(Request.fromRawDetails(details))
+  // Block it if it is
+  if (!match) return
 
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
@@ -77,63 +80,26 @@ const sleep = (time: number) =>
  * Adds the event listener for blocking requests
  */
 const init = async () => {
-  // const domainsToBlock = await getBlockedDomains()
-  await blacklist.load()
-
   // Wait for storage objects to load
   await whitelist.load()
-
-  console.log(blacklist.blacklist.length)
-
-  // Loading each webRequest takes a long time. To combat this and increase the
-  // browsers responsiveness whilst loading the block list, we separate the
-  // blocklist into chunks determined by blockingChunks. These are then loaded
-  // and the script is slept to allow requests to complete
-
-  // We can't just use a for loop because that ignores the last few thousand domains
-  // if blocking chunks is set too high. Hence why we use a while loop
-  let done = false
-  let currIndex = 0
-
-  // We store the length in a variable because it won't change whilst we are
-  // looping, so we can save some processing time
-  const arrayLength = blacklist.blacklist.length
-
-  // This starts a total timer, helpful for debugging and performance purposes
-  console.time('All webRequests')
-
-  // While we are not done with the blacklist, we will continue to loop through it
-  while (!done) {
-    // This is moved out of the the webrequest function to keep it out of the webrequest
-    // performance measurements
-    const urls = blacklist.blacklist.slice(
-      currIndex,
-      currIndex + blockingChunks
-    )
-
-    console.time('webRequest')
-    // Load the webRequests into the browser
-    browser.webRequest.onBeforeRequest.addListener(requestHandler, { urls }, [
-      'blocking',
-    ])
-    console.timeEnd('webRequest')
-
-    await sleep(chunkSeparator)
-
-    // Increment and check if we are done
-    currIndex += blockingChunks
-    if (currIndex > arrayLength) done = true
-  }
-
-  console.log(currIndex)
-  console.timeEnd('All webRequests')
-
   await settings.load()
 
-  blacklist.cacheHandler(settings.data, () => {
-    close()
-    init()
-  })
+  // Create a filter list using the cliqz filter engine
+  // TODO: Allow the customisation of this list
+  // TODO: Generate default list in sheild db
+  engine = await FiltersEngine.fromLists(fetch, [
+    'https://easylist.to/easylist/easylist.txt',
+    'https://easylist.to/easylist/easyprivacy.txt',
+    'https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/UsefulAdsFilter/sections/usefulads.txt',
+  ])
+
+  console.log('Engine loaded')
+
+  browser.webRequest.onBeforeRequest.addListener(
+    requestHandler,
+    { urls: ['<all_urls>'] },
+    ['blocking']
+  )
 }
 
 /**
