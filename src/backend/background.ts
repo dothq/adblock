@@ -88,17 +88,14 @@ const init = async () => {
   await settings.load()
 
   // Create a filter list using the cliqz filter engine
-  // TODO: Allow the customisation of this list
+  // TODO: Allow the customization of this list
   // TODO: Generate default list in sheild db
   engine = await FiltersEngine.fromLists(fetch, [
     // Common lists
     'https://easylist.to/easylist/easylist.txt',
     'https://easylist.to/easylist/easyprivacy.txt',
-    'https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/UsefulAdsFilter/sections/usefulads.txt',
-    'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt',
-    'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt',
-    'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt',
     'https://hosts.netlify.app/Pro/adblock.txt',
+    'https://block.energized.pro/ultimate/formats/filter',
   ])
 
   console.log('Engine loaded')
