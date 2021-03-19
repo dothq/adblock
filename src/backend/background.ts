@@ -9,6 +9,7 @@ import { Settings } from './settings'
 import tempPort, { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
 import { CosmeticsConn } from './constants/portConnections'
+import { defineFn } from './lib/remoteFunctions'
 let wasm = require('./rust/pkg')
 
 // ================
@@ -170,29 +171,14 @@ tempPort('co.dothq.shield.ui.stats', (p) => {
   })
 })
 
-// Cosmetic filter stuff
-tempPort('co.dothq.shield.backend.cosmetics', (p) => {
-  p.onMessage.addListener(async (msg: any) => {
-    switch (msg.type) {
-      // Get the cosmetics for this site and return it
-      case CosmeticsConn.getCosmeticsForSite:
-        // Wait for the engine to spawn
-        while (typeof engine === 'undefined') {
-          await sleep(100)
-        }
+// Define a function for getting cosmetic filters for each site
+defineFn('getCosmeticsFilters', async (payload) => {
+  // Wait for the engine to spawn
+  while (typeof engine === 'undefined') {
+    await sleep(100)
+  }
 
-        // Send the engine's cosmetic filter
-        p.postMessage({
-          type: CosmeticsConn.returnCosmeticsForSite,
-          payload: engine.getCosmeticsFilters(msg.payload),
-        })
-
-        break
-
-      default:
-        break
-    }
-  })
+  return engine.getCosmeticsFilters(payload)
 })
 
 // Code to clean up the adsOnTabs variable. This will discard tabs that have been
