@@ -1,13 +1,14 @@
 /// <reference types="web-ext-types"/>
 
-import psl from 'psl'
+import { parse } from 'psl'
 import { FiltersEngine, Request } from '@cliqz/adblocker'
 
 import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
 import { PermStore } from './permStore'
 import { Settings } from './settings'
-import tempPort from './tempPort'
+import tempPort, { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
+import { CosmeticsConn } from './constants/portConnections'
 let wasm = require('./rust/pkg')
 
 // ================
@@ -29,10 +30,8 @@ const whitelist = new PermStore('whitelist', [])
 
 // =================
 // Blocking code
-
 const getDomain = (url) =>
-  psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
-    .domain
+  parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
 /**
  * The listener for webRequests. Blocks all that it receives and adds them to logger
@@ -43,12 +42,9 @@ const requestHandler = (details: RequestListenerArgs) => {
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
 
   // Check if the condition is in the blocklist
-  const out = engine.match(Request.fromRawDetails(details))
+  const { match } = engine.match(Request.fromRawDetails(details))
   // Block it if it is
-  if (!out.match) return
-
-  console.log(details.url)
-  console.log(out)
+  if (!match) return
 
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
@@ -75,9 +71,6 @@ const requestHandler = (details: RequestListenerArgs) => {
 
   return { cancel: true }
 }
-
-const sleep = (time: number) =>
-  new Promise((resolve) => setTimeout(() => resolve(false), time))
 
 /**
  * Adds the event listener for blocking requests
@@ -156,7 +149,6 @@ tempPort('co.dothq.shield.ui.popup', (p) => {
 
 // Interacts with the settings ui
 tempPort('co.dothq.shield.ui.settings', (p) => {
-  console.log('Connected')
   p.onMessage.addListener((msg: any) => {
     // The settings ui has requested a reload
     if (msg.type == SettingsConn.reload) {
@@ -170,11 +162,35 @@ tempPort('co.dothq.shield.ui.settings', (p) => {
 
 // Interacts with the stats ui
 tempPort('co.dothq.shield.ui.stats', (p) => {
-  console.log('Connected')
   p.onMessage.addListener((msg: any) => {
     if (msg.type == StatsConn.getLT) {
       // Send back LT stats
       p.postMessage({ type: StatsConn.returnLT, payload: ltBlocked.data })
+    }
+  })
+})
+
+// Cosmetic filter stuff
+tempPort('co.dothq.shield.backend.cosmetics', (p) => {
+  p.onMessage.addListener(async (msg: any) => {
+    switch (msg.type) {
+      // Get the cosmetics for this site and return it
+      case CosmeticsConn.getCosmeticsForSite:
+        // Wait for the engine to spawn
+        while (typeof engine === 'undefined') {
+          await sleep(100)
+        }
+
+        // Send the engine's cosmetic filter
+        p.postMessage({
+          type: CosmeticsConn.returnCosmeticsForSite,
+          payload: engine.getCosmeticsFilters(msg.payload),
+        })
+
+        break
+
+      default:
+        break
     }
   })
 })

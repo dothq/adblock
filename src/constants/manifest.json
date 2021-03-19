@@ -20,6 +20,12 @@
       "run_at": "document_end",
       "matches": ["https://*.youtube.com/*"],
       "js": ["yt.js"]
+    },
+    {
+      "all_frames": true,
+      "run_at": "document_end",
+      "matches": ["<all_urls>"],
+      "js": ["cosmetics.js"]
     }
   ],
   "browser_action": {
