@@ -43,9 +43,12 @@ const requestHandler = (details: RequestListenerArgs) => {
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
 
   // Check if the condition is in the blocklist
-  const { match } = engine.match(Request.fromRawDetails(details))
+  const out = engine.match(Request.fromRawDetails(details))
   // Block it if it is
-  if (!match) return
+  if (!out.match) return
+
+  console.log(details.url)
+  console.log(out)
 
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
@@ -88,9 +91,14 @@ const init = async () => {
   // TODO: Allow the customisation of this list
   // TODO: Generate default list in sheild db
   engine = await FiltersEngine.fromLists(fetch, [
+    // Common lists
     'https://easylist.to/easylist/easylist.txt',
     'https://easylist.to/easylist/easyprivacy.txt',
     'https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/UsefulAdsFilter/sections/usefulads.txt',
+    'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt',
+    'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt',
+    'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt',
+    'https://hosts.netlify.app/Pro/adblock.txt',
   ])
 
   console.log('Engine loaded')
