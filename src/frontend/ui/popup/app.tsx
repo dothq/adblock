@@ -45,7 +45,7 @@ export class App extends Component {
           favicon: tab[0].favIconUrl,
         })
       })
-    
+
     remoteFn('getAds').then(async (blocked) => {
       // Get current tab
       const tab = await browser.tabs.query({
