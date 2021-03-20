@@ -89,7 +89,6 @@ const init = async () => {
     'https://easylist.to/easylist/easylist.txt',
     'https://easylist.to/easylist/easyprivacy.txt',
     'https://hosts.netlify.app/Pro/adblock.txt',
-    'https://block.energized.pro/ultimate/formats/filter',
   ])
 
   console.log('Engine loaded')
