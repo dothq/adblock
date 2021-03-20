@@ -111,65 +111,35 @@ const close = () => {
 // =================
 // External interactions
 
-tempPort('co.dothq.shield.ui.popup', (p) => {
-  p.onMessage.addListener((msg: any) => {
-    console.log(msg)
-
-    if (msg.type === PopupConn.getAds) {
-      p.postMessage({ type: PopupConn.returnAds, payload: adsOnTabs })
-    }
-
-    if (msg.type === PopupConn.getWhitelist) {
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-
-    if (msg.type === PopupConn.addWhitelist) {
-      whitelist.data.push(msg.payload)
-
-      // Resend the whitelist so the UI updates
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-
-    if (msg.type === PopupConn.removeWhitelist) {
-      whitelist.data = whitelist.data.filter((value) => value != msg.payload)
-
-      // Resend the whitelist so the UI updates
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-  })
+// Removes an entry from the whitelist. Used by the popup
+defineFn('removeFromWhitelist', async (site: string) => {
+  whitelist.data = whitelist.data.filter((value) => value != site)
+  // The whitelist is sent back to update the UI
+  return whitelist.data
 })
 
-// Interacts with the settings ui
-tempPort('co.dothq.shield.ui.settings', (p) => {
-  p.onMessage.addListener((msg: any) => {
-    // The settings ui has requested a reload
-    if (msg.type == SettingsConn.reload) {
-      console.log('reload')
-
-      close()
-      init()
-    }
-  })
+// Adds an entry to the whitelist. Used by the popup
+defineFn('addToWhitelist', async (site: string) => {
+  whitelist.data.push(site)
+  // The whitelist is sent back to update the UI
+  return whitelist.data
 })
 
-// Interacts with the stats ui
-tempPort('co.dothq.shield.ui.stats', (p) => {
-  p.onMessage.addListener((msg: any) => {
-    if (msg.type == StatsConn.getLT) {
-      // Send back LT stats
-      p.postMessage({ type: StatsConn.returnLT, payload: ltBlocked.data })
-    }
-  })
+// Returns the whitelist for a UI (like the popup to use)
+defineFn('getWhitelist', async () => whitelist.data)
+
+// Gets all of the ads on active tabs so that a UI (like the popup) can render them
+defineFn('getAds', async () => adsOnTabs)
+
+// Restart the backend. Used by the settings ui when changes are made to settings
+defineFn('reloadBackend', async () => {
+  close()
+  await init()
 })
+
+// Define a function that can be used to pull the long term statistics for displaying
+// in the statistics page
+defineFn('getLongTermStats', async () => ltBlocked.data)
 
 // Define a function for getting cosmetic filters for each site
 defineFn('getCosmeticsFilters', async (payload) => {

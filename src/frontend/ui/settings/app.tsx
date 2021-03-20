@@ -1,6 +1,7 @@
 /// <reference types="web-ext-types"/>
 
 import React, { Component } from 'react'
+import { remoteFn } from '../../../backend/lib/remoteFunctions'
 
 import { DEFAULT_SETTINGS, SettingsConn } from '../../../constants/settings'
 import { Button, Checkbox } from '../common'
@@ -96,7 +97,7 @@ class SettingsApp extends Component<AppState> {
               onClick={async () => {
                 await browser.storage.local.remove('settings')
                 await browser.storage.local.set({ settings })
-                backgroundScript.postMessage({ type: SettingsConn.reload })
+                await remoteFn('reloadBackend')
               }}
             >
               Save Settings

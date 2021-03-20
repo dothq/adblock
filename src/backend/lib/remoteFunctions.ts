@@ -4,7 +4,7 @@ import tempPort from '../tempPort'
 
 type CallFunctionData = {
   name: string
-  payload: any
+  payload?: any
   id: string
 }
 type FunctionReturnData = {
@@ -29,7 +29,7 @@ tempPort('co.dothq.shield.fn', (p) =>
   })
 )
 
-export const remoteFn = (name: string, payload: any): Promise<any> => {
+export const remoteFn = (name: string, payload?: any): Promise<any> => {
   const id = uuidv4()
 
   const backend = browser.runtime.connect({

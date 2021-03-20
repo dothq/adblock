@@ -1,5 +1,5 @@
 import Chart from 'chart.js'
-import { StatsConn } from '../../../constants/settings'
+import { remoteFn } from '../../../backend/lib/remoteFunctions'
 
 import '../common/common.css'
 
@@ -8,84 +8,79 @@ Chart.defaults.global.defaultFontColor = getComputedStyle(
   document.documentElement
 ).getPropertyValue('--color')
 
-const backgroundScript = browser.runtime.connect({
-  name: 'co.dothq.shield.ui.stats',
-})
-
+// Get the canvas context that will be used to draw the chart
 const ctx = (document.getElementById(
   'blockedTime'
 ) as HTMLCanvasElement).getContext('2d')
+
+// Get all of the text elements that need to be updated
 const totalBlockedEl = document.getElementById('totalBlocked')
 
-// Load stats on receiving them
-backgroundScript.onMessage.addListener((msg: any) => {
-  if (msg.type == StatsConn.returnLT) {
-    let data = []
-    let labels = []
-    let totalBlocked = 0
+;(async () => {
+  const payload = await remoteFn('getLongTermStats')
 
-    const { payload } = msg
-    for (const key in payload) {
-      const blocked = payload[key]
-      totalBlocked += blocked
+  let data = []
+  let labels = []
+  let totalBlocked = 0
 
-      data.push({ x: new Date(key), y: blocked })
-      labels.push(key)
-    }
+  for (const key in payload) {
+    const blocked = payload[key]
+    totalBlocked += blocked
 
-    totalBlockedEl.innerText = totalBlocked.toString()
+    data.push({ x: new Date(key), y: blocked })
+    labels.push(key)
+  }
 
-    console.log(data)
+  totalBlockedEl.innerText = totalBlocked.toString()
 
-    const myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            backgroundColor: '#256ef5',
-            borderColor: '#256ef5',
-            fill: true,
-            label: 'Blocked websites',
-            data,
-          },
-        ],
+  console.log(data)
+
+  const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          backgroundColor: '#256ef5',
+          borderColor: '#256ef5',
+          fill: true,
+          label: 'Blocked websites',
+          data,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Blocked sources',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
       },
-      options: {
-        responsive: true,
-        plugins: {
+      hover: {
+        mode: 'nearest',
+        intersect: true,
+      },
+      scales: {
+        x: {
+          display: true,
           title: {
             display: true,
-            text: 'Blocked sources',
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
+            text: 'Month',
           },
         },
-        hover: {
-          mode: 'nearest',
-          intersect: true,
-        },
-        scales: {
-          x: {
+        y: {
+          display: true,
+          title: {
             display: true,
-            title: {
-              display: true,
-              text: 'Month',
-            },
-          },
-          y: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Value',
-            },
+            text: 'Value',
           },
         },
       },
-    })
-  }
-})
-
-backgroundScript.postMessage({ type: StatsConn.getLT })
+    },
+  })
+})()

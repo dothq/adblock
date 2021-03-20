@@ -6,6 +6,7 @@ import { graphColors } from '../../constants/colors'
 import { Button, Ring } from '../common'
 
 import styles from './style.module.css'
+import { remoteFn } from '../../../backend/lib/remoteFunctions'
 
 const backgroundScript = browser.runtime.connect({
   name: 'co.dothq.shield.ui.popup',
@@ -31,91 +32,80 @@ export class App extends Component {
   }
 
   componentDidMount() {
-    backgroundScript.onMessage.addListener(async (msg: any) => {
-      console.log(msg)
+    remoteFn('getAds').then(async (blocked) => {
+      // Get current tab
+      const tab = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      })
+      const tabId = tab[0].id
 
-      // Check if this is a return value from a getAds function call
-      if (msg.type === PopupConn.returnAds) {
-        // Assign the payload to a more usefully named string
-        const blocked = msg.payload
+      // If this tab has had any ads blocked on it
+      if (
+        typeof blocked[tabId] !== 'undefined' &&
+        blocked[tabId].length !== 0
+      ) {
+        // Something has been blocked. Do something with the data
+        let blockedURLs = blocked[tabId]
 
-        // Get current tab
-        const tab = await browser.tabs.query({
-          active: true,
-          currentWindow: true,
-        })
-        const tabId = tab[0].id
+        // Get a color for the graph
+        const getColor = (i: number) => {
+          let index = i
 
-        // If this tab has had any ads blocked on it
-        if (
-          typeof blocked[tabId] !== 'undefined' &&
-          blocked[tabId].length !== 0
-        ) {
-          // Something has been blocked. Do something with the data
-          let blockedURLs = blocked[tabId]
-
-          // Get a color for the graph
-          const getColor = (i: number) => {
-            let index = i
-
-            while (index > graphColors.length - 1) {
-              index = index - graphColors.length
-            }
-
-            return `#${graphColors[index]}`
+          while (index > graphColors.length - 1) {
+            index = index - graphColors.length
           }
 
-          blockedURLs = blockedURLs
-            .map((url) => ({
-              num: 1,
-              url: getDomain(url),
-            }))
-            .filter((curr, i, arr) => {
-              const match = arr.findIndex((t) => t.url === curr.url)
-              const notDuplicate = match === i
+          return `#${graphColors[index]}`
+        }
 
-              if (!notDuplicate) {
-                arr[match].num = arr[match].num + 1
-              }
+        blockedURLs = blockedURLs
+          .map((url) => ({
+            num: 1,
+            url: getDomain(url),
+          }))
+          .filter((curr, i, arr) => {
+            const match = arr.findIndex((t) => t.url === curr.url)
+            const notDuplicate = match === i
 
-              return notDuplicate
-            })
+            if (!notDuplicate) {
+              arr[match].num = arr[match].num + 1
+            }
 
-          let singleItem = 0
-          blockedURLs.forEach((element) => (singleItem += element.num))
-          const blockedNum = singleItem
-          singleItem = 100 / singleItem
-
-          this.setState({
-            ads: blockedURLs.map((url, i) => ({
-              label: url.url,
-              value: singleItem * url.num,
-              color: getColor(i),
-            })),
-            blocked: blockedNum,
+            return notDuplicate
           })
-        }
-      } else if (msg.type === PopupConn.returnWhitelist) {
-        // Get current tab
-        const tab = await browser.tabs.query({
-          active: true,
-          currentWindow: true,
+
+        let singleItem = 0
+        blockedURLs.forEach((element) => (singleItem += element.num))
+        const blockedNum = singleItem
+        singleItem = 100 / singleItem
+
+        this.setState({
+          ads: blockedURLs.map((url, i) => ({
+            label: url.url,
+            value: singleItem * url.num,
+            color: getColor(i),
+          })),
+          blocked: blockedNum,
         })
-
-        const whitelist: string[] = msg.payload
-        const tabURL = getDomain(tab[0].url)
-
-        if (whitelist.indexOf(tabURL) !== -1) {
-          this.setState({ ...this.state, whitelisted: true })
-        } else {
-          this.setState({ ...this.state, whitelisted: false })
-        }
       }
     })
 
-    // Get assorted info from the background script
-    backgroundScript.postMessage({ type: PopupConn.getWhitelist })
-    backgroundScript.postMessage({ type: PopupConn.getAds })
+    remoteFn('getWhitelist').then(async (whitelist: string[]) => {
+      // Get current tab
+      const tab = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      })
+
+      const tabURL = getDomain(tab[0].url)
+
+      if (whitelist.indexOf(tabURL) !== -1) {
+        this.setState({ ...this.state, whitelisted: true })
+      } else {
+        this.setState({ ...this.state, whitelisted: false })
+      }
+    })
   }
 
   async toggleWhitelist() {
