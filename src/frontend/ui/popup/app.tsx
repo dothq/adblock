@@ -3,10 +3,11 @@ import psl from 'psl'
 
 import { PopupConn } from '../../../constants/settings'
 import { graphColors } from '../../constants/colors'
-import { Button, Ring } from '../common'
+import { Button, Ring, Switch } from '../common'
 
 import styles from './style.module.css'
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
+import Favicon from '../common/favicon'
 
 const backgroundScript = browser.runtime.connect({
   name: 'co.dothq.shield.ui.popup',
@@ -29,9 +30,22 @@ export class App extends Component {
     ],
     blocked: 0,
     whitelisted: false,
+    favicon: 'chrome://mozapps/skin/places/defaultFavicon.svg',
   }
 
   componentDidMount() {
+    browser.tabs
+      .query({
+        active: true,
+        currentWindow: true,
+      })
+      .then((tab) => {
+        this.setState({
+          ...this.state,
+          favicon: tab[0].favIconUrl,
+        })
+      })
+    
     remoteFn('getAds').then(async (blocked) => {
       // Get current tab
       const tab = await browser.tabs.query({
@@ -134,12 +148,39 @@ export class App extends Component {
   render() {
     return (
       <div className={styles.container}>
+        <main
+          className={`${styles.accent} ${
+            this.state.whitelisted ? '' : styles.accentDisabled
+          }`}
+        >
+          <div className={styles.itemBar}>
+            <div style={{ justifyContent: 'flex-start' }}>
+              <Switch
+                defaultState={this.state.whitelisted}
+                checkedColour={'#b80000'}
+                onChange={() => this.toggleWhitelist()}
+              />
+            </div>
+
+            <div style={{ justifyContent: 'center' }}>
+              <Favicon icon={this.state.favicon} />
+            </div>
+
+            <div style={{ justifyContent: 'flex-end' }}>
+              <Switch
+                defaultState={false}
+                checkedColour={'#b80000'}
+                onChange={() => this.toggleWhitelist()}
+              />
+            </div>
+          </div>
+        </main>
         <Ring
           data={this.state.ads}
           title={this.state.blocked.toString()}
           subtitle="Blocked"
         />
-
+        bingus
         <div className={styles.controls}>
           <Button
             isPrimary={true}
