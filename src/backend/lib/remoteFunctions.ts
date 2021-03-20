@@ -14,20 +14,22 @@ type FunctionReturnData = {
 
 let functions = {}
 
-tempPort('co.dothq.shield.fn', (p) =>
-  p.onMessage.addListener(async (msg: CallFunctionData) => {
-    if (typeof functions[msg.name] === 'undefined') {
-      throw new Error(
-        `The function ${msg.name} has not been defined (yet). Please make sure that it is defined before use`
-      )
-    } else {
-      p.postMessage({
-        id: msg.id,
-        payload: await functions[msg.name](msg.payload),
-      })
-    }
-  })
-)
+export const initFn = () =>
+  tempPort('co.dothq.shield.fn', (p) =>
+    p.onMessage.addListener(async (msg: CallFunctionData) => {
+      if (typeof functions[msg.name] === 'undefined') {
+        // Tabs can be defined on multiple scripts so this is irrelevant
+        // throw new Error(
+        //   `The function ${msg.name} has not been defined (yet). Please make sure that it is defined before use`
+        // )
+      } else {
+        p.postMessage({
+          id: msg.id,
+          payload: await functions[msg.name](msg.payload),
+        })
+      }
+    })
+  )
 
 export const remoteFn = (name: string, payload?: any): Promise<any> => {
   const id = uuidv4()

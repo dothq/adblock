@@ -9,7 +9,7 @@ import { Settings } from './settings'
 import tempPort, { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
 import { CosmeticsConn } from './constants/portConnections'
-import { defineFn } from './lib/remoteFunctions'
+import { defineFn, initFn } from './lib/remoteFunctions'
 let wasm = require('./rust/pkg')
 
 // ================
@@ -150,6 +150,9 @@ defineFn('getCosmeticsFilters', async (payload) => {
   return engine.getCosmeticsFilters(payload)
 })
 
+// Start listening for function calls
+initFn()
+
 // Code to clean up the adsOnTabs variable. This will discard tabs that have been
 // deleted or have changed their url
 const tabRemoved = (tabId: number) => {
@@ -159,7 +162,9 @@ const tabRemoved = (tabId: number) => {
   }
 }
 
-const tabUpdated = ({ tabId }) => {
+const tabUpdated = (params) => {
+  console.log(params)
+  const { tabId } = params
   if (typeof adsOnTabs[tabId] !== 'undefined') {
     console.log(`Tab reloaded: ${tabId}`)
     delete adsOnTabs[tabId]

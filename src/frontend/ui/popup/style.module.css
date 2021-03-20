@@ -1,15 +1,3 @@
-:root {
-  /* --bg: #ffffff; */
-}
-
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-  }
-}
-*/
-
 body {
   background-color: var(--background-color);
   color: var(--color);

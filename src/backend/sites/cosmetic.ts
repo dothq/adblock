@@ -1,7 +1,7 @@
 // This performs cosmetic filtering on each website
 
 import { parse } from 'psl'
-import { remoteFn } from '../lib/remoteFunctions'
+import { defineFn, initFn, remoteFn } from '../lib/remoteFunctions'
 
 const getDomain = (url: string) =>
   parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
