@@ -82,8 +82,8 @@ const init = async () => {
   await settings.load()
 
   // Create a filter list using the cliqz filter engine
-  // TODO: Allow the customization of this list
-  // TODO: Generate default list in sheild db
+  // TODO [$605597955806de0008d92f65]: Allow the customization of this list
+  // TODO [$605597955806de0008d92f66]: Generate default list in sheild db
   engine = await FiltersEngine.fromLists(fetch, [
     // Common lists
     'https://easylist.to/easylist/easylist.txt',
