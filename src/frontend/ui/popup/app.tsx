@@ -1,5 +1,4 @@
 import React from 'react'
-import { remoteFn } from '../../../backend/lib/remoteFunctions'
 import { Switch, Button, Favicon } from '../common'
 import styles from './style.module.css'
 
@@ -29,11 +28,16 @@ export const App = ({ state, setState, toggleWhitelist }) => {
 
           <div style={{ justifyContent: 'flex-end' }}>
             <Switch
-              defaultState={false}
+              defaultState={state.whitelisted}
               checkedColour={'#b80000'}
               onChange={() => toggleWhitelist()}
             />
           </div>
+        </div>
+
+        <div className={styles.center} style={{ textAlign: 'center' }}>
+          <h1>{state.blocked}</h1>
+          <p>Ads or trackers blocked</p>
         </div>
       </main>
       <div className={styles.controls}>

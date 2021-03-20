@@ -3,10 +3,8 @@ import psl from 'psl'
 
 import { PopupConn } from '../../../constants/settings'
 import { graphColors } from '../../constants/colors'
-import { Button, Ring, Switch } from '../common'
 
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
-import Favicon from '../common/favicon'
 import { App } from './app'
 
 const backgroundScript = browser.runtime.connect({
@@ -17,7 +15,7 @@ const getDomain = (url) =>
   psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
     .domain
 
-const DEFAULT_COLOR = '#cb37ea'
+const DEFAULT_COLOR = '#256ef5'
 
 export type AppState = {
   blocked: number
@@ -32,7 +30,7 @@ export class State extends Component {
     whitelisted: false,
     // TODO: FIXME: Cannot use chrome:// in extensions without security issues
     favicon: 'chrome://mozapps/skin/places/defaultFavicon.svg',
-    color: '#cb37ea',
+    color: DEFAULT_COLOR,
   }
 
   componentDidMount() {
@@ -57,7 +55,7 @@ export class State extends Component {
 
         this.setState({
           ...this.state,
-          favicon: tab[0].favIconUrl,
+          favicon: tab[0].favIconUrl || DEFAULT_COLOR,
           color: executed[0],
         })
       })

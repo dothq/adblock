@@ -163,7 +163,6 @@ const tabRemoved = (tabId: number) => {
 }
 
 const tabUpdated = (params) => {
-  console.log(params)
   const { tabId } = params
   if (typeof adsOnTabs[tabId] !== 'undefined') {
     console.log(`Tab reloaded: ${tabId}`)

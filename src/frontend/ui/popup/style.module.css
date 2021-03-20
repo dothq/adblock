@@ -26,6 +26,7 @@ body {
   background-color: #b80000;
   padding: 24px;
   transition: 0.4s background-color;
+  position: relative;
 }
 
 .accentDisabled {
@@ -37,4 +38,11 @@ body {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
