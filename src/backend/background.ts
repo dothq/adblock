@@ -1,13 +1,15 @@
 /// <reference types="web-ext-types"/>
 
-import psl from 'psl'
+import { parse } from 'psl'
 import { FiltersEngine, Request } from '@cliqz/adblocker'
 
 import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
 import { PermStore } from './permStore'
 import { Settings } from './settings'
-import tempPort from './tempPort'
+import tempPort, { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
+import { CosmeticsConn } from './constants/portConnections'
+import { defineFn } from './lib/remoteFunctions'
 let wasm = require('./rust/pkg')
 
 // ================
@@ -29,10 +31,8 @@ const whitelist = new PermStore('whitelist', [])
 
 // =================
 // Blocking code
-
 const getDomain = (url) =>
-  psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
-    .domain
+  parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
 /**
  * The listener for webRequests. Blocks all that it receives and adds them to logger
@@ -73,9 +73,6 @@ const requestHandler = (details: RequestListenerArgs) => {
   return { cancel: true }
 }
 
-const sleep = (time: number) =>
-  new Promise((resolve) => setTimeout(() => resolve(false), time))
-
 /**
  * Adds the event listener for blocking requests
  */
@@ -85,12 +82,13 @@ const init = async () => {
   await settings.load()
 
   // Create a filter list using the cliqz filter engine
-  // TODO: Allow the customisation of this list
-  // TODO: Generate default list in sheild db
+  // TODO [#29]: Allow the customization of this list
+  // TODO [#30]: Generate default list in sheild db
   engine = await FiltersEngine.fromLists(fetch, [
+    // Common lists
     'https://easylist.to/easylist/easylist.txt',
     'https://easylist.to/easylist/easyprivacy.txt',
-    'https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/UsefulAdsFilter/sections/usefulads.txt',
+    'https://hosts.netlify.app/Pro/adblock.txt',
   ])
 
   console.log('Engine loaded')
@@ -112,66 +110,44 @@ const close = () => {
 // =================
 // External interactions
 
-tempPort('co.dothq.shield.ui.popup', (p) => {
-  p.onMessage.addListener((msg: any) => {
-    console.log(msg)
-
-    if (msg.type === PopupConn.getAds) {
-      p.postMessage({ type: PopupConn.returnAds, payload: adsOnTabs })
-    }
-
-    if (msg.type === PopupConn.getWhitelist) {
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-
-    if (msg.type === PopupConn.addWhitelist) {
-      whitelist.data.push(msg.payload)
-
-      // Resend the whitelist so the UI updates
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-
-    if (msg.type === PopupConn.removeWhitelist) {
-      whitelist.data = whitelist.data.filter((value) => value != msg.payload)
-
-      // Resend the whitelist so the UI updates
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-  })
+// Removes an entry from the whitelist. Used by the popup
+defineFn('removeFromWhitelist', async (site: string) => {
+  whitelist.data = whitelist.data.filter((value) => value != site)
+  // The whitelist is sent back to update the UI
+  return whitelist.data
 })
 
-// Interacts with the settings ui
-tempPort('co.dothq.shield.ui.settings', (p) => {
-  console.log('Connected')
-  p.onMessage.addListener((msg: any) => {
-    // The settings ui has requested a reload
-    if (msg.type == SettingsConn.reload) {
-      console.log('reload')
-
-      close()
-      init()
-    }
-  })
+// Adds an entry to the whitelist. Used by the popup
+defineFn('addToWhitelist', async (site: string) => {
+  whitelist.data.push(site)
+  // The whitelist is sent back to update the UI
+  return whitelist.data
 })
 
-// Interacts with the stats ui
-tempPort('co.dothq.shield.ui.stats', (p) => {
-  console.log('Connected')
-  p.onMessage.addListener((msg: any) => {
-    if (msg.type == StatsConn.getLT) {
-      // Send back LT stats
-      p.postMessage({ type: StatsConn.returnLT, payload: ltBlocked.data })
-    }
-  })
+// Returns the whitelist for a UI (like the popup to use)
+defineFn('getWhitelist', async () => whitelist.data)
+
+// Gets all of the ads on active tabs so that a UI (like the popup) can render them
+defineFn('getAds', async () => adsOnTabs)
+
+// Restart the backend. Used by the settings ui when changes are made to settings
+defineFn('reloadBackend', async () => {
+  close()
+  await init()
+})
+
+// Define a function that can be used to pull the long term statistics for displaying
+// in the statistics page
+defineFn('getLongTermStats', async () => ltBlocked.data)
+
+// Define a function for getting cosmetic filters for each site
+defineFn('getCosmeticsFilters', async (payload) => {
+  // Wait for the engine to spawn
+  while (typeof engine === 'undefined') {
+    await sleep(100)
+  }
+
+  return engine.getCosmeticsFilters(payload)
 })
 
 // Code to clean up the adsOnTabs variable. This will discard tabs that have been
