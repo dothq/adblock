@@ -1,10 +1,12 @@
 const tempPort = (
   id: string,
-  onInstance: (port: browser.runtime.Port) => void,
+  onInstance: (port: browser.runtime.Port) => void | Promise<void>,
   setVar?: (val: browser.runtime.Port | undefined) => void
 ) => {
   const connected = (p: browser.runtime.Port) => {
     if (p.name === id) {
+      console.log(`Connected to ${id}`)
+
       if (setVar) setVar(p)
       onInstance(p)
 
@@ -16,5 +18,8 @@ const tempPort = (
 
   browser.runtime.onConnect.addListener(connected)
 }
+
+export const sleep = (duration: number) =>
+  new Promise((resolve) => setTimeout(resolve, duration))
 
 export default tempPort

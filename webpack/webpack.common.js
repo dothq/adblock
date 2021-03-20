@@ -15,7 +15,8 @@ module.exports = {
     ),
     stats: path.join(__dirname, `${srcDir}/frontend/ui/stats/stats.ts`),
     background: path.join(__dirname, `${srcDir}/backend/background.ts`),
-    yt: path.join(__dirname, `${srcDir}/backend/youtube/index.ts`),
+    yt: path.join(__dirname, `${srcDir}/backend/sites/youtube.ts`),
+    cosmetics: path.join(__dirname, `${srcDir}/backend/sites/cosmetic.ts`),
   },
 
   output: {

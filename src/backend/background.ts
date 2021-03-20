@@ -1,19 +1,16 @@
 /// <reference types="web-ext-types"/>
 
-import psl from 'psl'
+import { parse } from 'psl'
+import { FiltersEngine, Request } from '@cliqz/adblocker'
 
 import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
-import { Blacklist } from './blacklist'
 import { PermStore } from './permStore'
 import { Settings } from './settings'
-import tempPort from './tempPort'
+import tempPort, { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
+import { CosmeticsConn } from './constants/portConnections'
+import { defineFn } from './lib/remoteFunctions'
 let wasm = require('./rust/pkg')
-
-// ================
-// Performance settings
-const blockingChunks = 10000 // Items. Splits it into chunks of 0-5ms on my computer
-const chunkSeparator = 10 // ms
 
 // ================
 // User settings
@@ -24,17 +21,18 @@ const settings = new Settings()
 let adsOnTabs = {}
 const ltBlocked = new PermStore('longTermBlockList', {})
 
+// ===============
+// Blocking engine
+let engine: FiltersEngine
+
 // =================
 // Blocking related variable
 const whitelist = new PermStore('whitelist', [])
-const blacklist = new Blacklist()
 
 // =================
 // Blocking code
-
 const getDomain = (url) =>
-  psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
-    .domain
+  parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
 /**
  * The listener for webRequests. Blocks all that it receives and adds them to logger
@@ -43,6 +41,11 @@ const getDomain = (url) =>
 const requestHandler = (details: RequestListenerArgs) => {
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
+
+  // Check if the condition is in the blocklist
+  const { match } = engine.match(Request.fromRawDetails(details))
+  // Block it if it is
+  if (!match) return
 
   const domain = getDomain(details.originUrl)
   if (whitelist.data.indexOf(domain) !== -1) return
@@ -70,70 +73,31 @@ const requestHandler = (details: RequestListenerArgs) => {
   return { cancel: true }
 }
 
-const sleep = (time: number) =>
-  new Promise((resolve) => setTimeout(() => resolve(false), time))
-
 /**
  * Adds the event listener for blocking requests
  */
 const init = async () => {
-  // const domainsToBlock = await getBlockedDomains()
-  await blacklist.load()
-
   // Wait for storage objects to load
   await whitelist.load()
-
-  console.log(blacklist.blacklist.length)
-
-  // Loading each webRequest takes a long time. To combat this and increase the
-  // browsers responsiveness whilst loading the block list, we separate the
-  // blocklist into chunks determined by blockingChunks. These are then loaded
-  // and the script is slept to allow requests to complete
-
-  // We can't just use a for loop because that ignores the last few thousand domains
-  // if blocking chunks is set too high. Hence why we use a while loop
-  let done = false
-  let currIndex = 0
-
-  // We store the length in a variable because it won't change whilst we are
-  // looping, so we can save some processing time
-  const arrayLength = blacklist.blacklist.length
-
-  // This starts a total timer, helpful for debugging and performance purposes
-  console.time('All webRequests')
-
-  // While we are not done with the blacklist, we will continue to loop through it
-  while (!done) {
-    // This is moved out of the the webrequest function to keep it out of the webrequest
-    // performance measurements
-    const urls = blacklist.blacklist.slice(
-      currIndex,
-      currIndex + blockingChunks
-    )
-
-    console.time('webRequest')
-    // Load the webRequests into the browser
-    browser.webRequest.onBeforeRequest.addListener(requestHandler, { urls }, [
-      'blocking',
-    ])
-    console.timeEnd('webRequest')
-
-    await sleep(chunkSeparator)
-
-    // Increment and check if we are done
-    currIndex += blockingChunks
-    if (currIndex > arrayLength) done = true
-  }
-
-  console.log(currIndex)
-  console.timeEnd('All webRequests')
-
   await settings.load()
 
-  blacklist.cacheHandler(settings.data, () => {
-    close()
-    init()
-  })
+  // Create a filter list using the cliqz filter engine
+  // TODO: Allow the customization of this list
+  // TODO: Generate default list in sheild db
+  engine = await FiltersEngine.fromLists(fetch, [
+    // Common lists
+    'https://easylist.to/easylist/easylist.txt',
+    'https://easylist.to/easylist/easyprivacy.txt',
+    'https://hosts.netlify.app/Pro/adblock.txt',
+  ])
+
+  console.log('Engine loaded')
+
+  browser.webRequest.onBeforeRequest.addListener(
+    requestHandler,
+    { urls: ['<all_urls>'] },
+    ['blocking']
+  )
 }
 
 /**
@@ -146,66 +110,44 @@ const close = () => {
 // =================
 // External interactions
 
-tempPort('co.dothq.shield.ui.popup', (p) => {
-  p.onMessage.addListener((msg: any) => {
-    console.log(msg)
-
-    if (msg.type === PopupConn.getAds) {
-      p.postMessage({ type: PopupConn.returnAds, payload: adsOnTabs })
-    }
-
-    if (msg.type === PopupConn.getWhitelist) {
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-
-    if (msg.type === PopupConn.addWhitelist) {
-      whitelist.data.push(msg.payload)
-
-      // Resend the whitelist so the UI updates
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-
-    if (msg.type === PopupConn.removeWhitelist) {
-      whitelist.data = whitelist.data.filter((value) => value != msg.payload)
-
-      // Resend the whitelist so the UI updates
-      p.postMessage({
-        type: PopupConn.returnWhitelist,
-        payload: whitelist.data,
-      })
-    }
-  })
+// Removes an entry from the whitelist. Used by the popup
+defineFn('removeFromWhitelist', async (site: string) => {
+  whitelist.data = whitelist.data.filter((value) => value != site)
+  // The whitelist is sent back to update the UI
+  return whitelist.data
 })
 
-// Interacts with the settings ui
-tempPort('co.dothq.shield.ui.settings', (p) => {
-  console.log('Connected')
-  p.onMessage.addListener((msg: any) => {
-    // The settings ui has requested a reload
-    if (msg.type == SettingsConn.reload) {
-      console.log('reload')
-
-      close()
-      init()
-    }
-  })
+// Adds an entry to the whitelist. Used by the popup
+defineFn('addToWhitelist', async (site: string) => {
+  whitelist.data.push(site)
+  // The whitelist is sent back to update the UI
+  return whitelist.data
 })
 
-// Interacts with the stats ui
-tempPort('co.dothq.shield.ui.stats', (p) => {
-  console.log('Connected')
-  p.onMessage.addListener((msg: any) => {
-    if (msg.type == StatsConn.getLT) {
-      // Send back LT stats
-      p.postMessage({ type: StatsConn.returnLT, payload: ltBlocked.data })
-    }
-  })
+// Returns the whitelist for a UI (like the popup to use)
+defineFn('getWhitelist', async () => whitelist.data)
+
+// Gets all of the ads on active tabs so that a UI (like the popup) can render them
+defineFn('getAds', async () => adsOnTabs)
+
+// Restart the backend. Used by the settings ui when changes are made to settings
+defineFn('reloadBackend', async () => {
+  close()
+  await init()
+})
+
+// Define a function that can be used to pull the long term statistics for displaying
+// in the statistics page
+defineFn('getLongTermStats', async () => ltBlocked.data)
+
+// Define a function for getting cosmetic filters for each site
+defineFn('getCosmeticsFilters', async (payload) => {
+  // Wait for the engine to spawn
+  while (typeof engine === 'undefined') {
+    await sleep(100)
+  }
+
+  return engine.getCosmeticsFilters(payload)
 })
 
 // Code to clean up the adsOnTabs variable. This will discard tabs that have been

@@ -5,8 +5,6 @@
 // is to just click the skip button instantly and seem like we have properly skipped
 // the ad. The skip button ad is currently .ytp-ad-text.ytp-ad-skip-button-text
 
-import './ads.css'
-
 setInterval(() => {
   // Grab the skip button
   const skipButton: HTMLDivElement = document.querySelector(
