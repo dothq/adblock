@@ -56,15 +56,6 @@ class SettingsApp extends Component<AppState> {
             <h2>Filter lists</h2>
             <div>
               <Checkbox
-                value={settings.lists.common}
-                onChange={() => {
-                  settings.lists.common = !settings.lists.common
-                  this.setState({ settings })
-                }}
-              >
-                Common filter list
-              </Checkbox>
-              <Checkbox
                 value={settings.lists.fakeNews}
                 onChange={() => {
                   settings.lists.fakeNews = !settings.lists.fakeNews

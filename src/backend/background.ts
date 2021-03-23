@@ -10,6 +10,12 @@ import tempPort, { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
 import { CosmeticsConn } from './constants/portConnections'
 import { defineFn, initFn } from './lib/remoteFunctions'
+import {
+  SHIELD_DB_ADS_AND_TRACKERS,
+  SHIELD_DB_FAKE_NEWS,
+  SHIELD_DB_GAMBLING,
+  SHIELD_DB_SOCIAL,
+} from './constants/db'
 let wasm = require('./rust/pkg')
 
 // ================
@@ -81,15 +87,24 @@ const init = async () => {
   await whitelist.load()
   await settings.load()
 
+  // Create what lists should be loaded
+  const lists = [SHIELD_DB_ADS_AND_TRACKERS]
+
+  // Add each list if selected
+  if (settings.data.lists.fakeNews) {
+    lists.push(SHIELD_DB_FAKE_NEWS)
+  }
+  if (settings.data.lists.gambling) {
+    lists.push(SHIELD_DB_GAMBLING)
+  }
+  if (settings.data.lists.social) {
+    lists.push(SHIELD_DB_SOCIAL)
+  }
+
   // Create a filter list using the cliqz filter engine
   // TODO [#29]: Allow the customization of this list
   // TODO [#30]: Generate default list in sheild db
-  engine = await FiltersEngine.fromLists(fetch, [
-    // Common lists
-    'https://easylist.to/easylist/easylist.txt',
-    'https://easylist.to/easylist/easyprivacy.txt',
-    'https://hosts.netlify.app/Pro/adblock.txt',
-  ])
+  engine = await FiltersEngine.fromLists(fetch, lists)
 
   console.log('Engine loaded')
 
@@ -180,4 +195,9 @@ browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 
   // Call the init function, so the blocker starts by default
   init()
+
+  // Bodge to clean up the old blacklist from people's computers
+  // TODO: Remove this at some point
+  browser.storage.local.remove('blacklistCache')
+  browser.storage.local.remove('blacklistExpiry')
 })()
