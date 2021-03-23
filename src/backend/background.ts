@@ -113,6 +113,7 @@ const close = () => {
 // Removes an entry from the whitelist. Used by the popup
 defineFn('removeFromWhitelist', async (site: string) => {
   whitelist.data = whitelist.data.filter((value) => value != site)
+  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -120,6 +121,7 @@ defineFn('removeFromWhitelist', async (site: string) => {
 // Adds an entry to the whitelist. Used by the popup
 defineFn('addToWhitelist', async (site: string) => {
   whitelist.data.push(site)
+  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })

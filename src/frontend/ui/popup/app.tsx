@@ -1,9 +1,20 @@
 import React from 'react'
 import { Switch, Button, Favicon } from '../common'
+import { hexHSL } from './contrast'
 import styles from './style.module.css'
 
 export const App = ({ state, setState, toggleWhitelist }) => {
-  console.log(state.color)
+  const themeTextColor = getComputedStyle(
+    document.documentElement
+  ).getPropertyValue('--color')
+
+  const textColor = state.whitelist
+    ? themeTextColor
+    : state.color.includes('#')
+    ? hexHSL(state.color).l < 0.56
+      ? '#fff'
+      : '#000'
+    : 'white'
 
   return (
     <div className={styles.container}>
@@ -16,7 +27,7 @@ export const App = ({ state, setState, toggleWhitelist }) => {
         <div className={styles.itemBar}>
           <div style={{ justifyContent: 'flex-start' }}>
             <Switch
-              defaultState={state.whitelisted}
+              state={state.whitelisted}
               checkedColour={'#b80000'}
               onChange={() => toggleWhitelist()}
             />
@@ -28,14 +39,17 @@ export const App = ({ state, setState, toggleWhitelist }) => {
 
           <div style={{ justifyContent: 'flex-end' }}>
             <Switch
-              defaultState={state.whitelisted}
+              state={state.whitelisted}
               checkedColour={'#b80000'}
               onChange={() => toggleWhitelist()}
             />
           </div>
         </div>
 
-        <div className={styles.center} style={{ textAlign: 'center' }}>
+        <div
+          className={styles.center}
+          style={{ textAlign: 'center', color: textColor }}
+        >
           <h1>{state.blocked}</h1>
           <p>Ads or trackers blocked</p>
         </div>

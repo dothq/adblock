@@ -3,18 +3,15 @@ import React from 'react'
 import switchStyle from './switch.module.css'
 
 export const Switch = ({
-  defaultState,
+  state,
   checkedColour,
   onChange,
 }: {
-  defaultState: boolean
+  state: boolean
   checkedColour: string
   onChange: any
 }) => {
-  const [state, setState] = React.useState(defaultState)
-
   const onSChange = () => {
-    setState(!state)
     onChange(state)
   }
 

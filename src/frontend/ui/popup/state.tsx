@@ -7,10 +7,6 @@ import { graphColors } from '../../constants/colors'
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
 import { App } from './app'
 
-const backgroundScript = browser.runtime.connect({
-  name: 'co.dothq.shield.ui.popup',
-})
-
 const getDomain = (url) =>
   psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
     .domain
@@ -30,7 +26,8 @@ export class State extends Component {
     whitelisted: false,
     // TODO: FIXME: Cannot use chrome:// in extensions without security issues
     favicon: 'chrome://mozapps/skin/places/defaultFavicon.svg',
-    color: DEFAULT_COLOR,
+    // TODO: Make sure that the contrast between the text and the background works all the time
+    color: 'rgba(0,0,0,0)', // This creates a fade in with the color
   }
 
   componentDidMount() {
@@ -56,7 +53,7 @@ export class State extends Component {
         this.setState({
           ...this.state,
           favicon: tab[0].favIconUrl || DEFAULT_COLOR,
-          color: executed[0],
+          color: executed[0] || DEFAULT_COLOR,
         })
       })
 
@@ -121,21 +118,23 @@ export class State extends Component {
       }
     })
 
-    remoteFn('getWhitelist').then(async (whitelist: string[]) => {
-      // Get current tab
-      const tab = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      })
+    remoteFn('getWhitelist').then(this.updateWhitelist.bind(this))
+  }
 
-      const tabURL = getDomain(tab[0].url)
-
-      if (whitelist.indexOf(tabURL) !== -1) {
-        this.setState({ ...this.state, whitelisted: true })
-      } else {
-        this.setState({ ...this.state, whitelisted: false })
-      }
+  async updateWhitelist(whitelist: string[]) {
+    // Get current tab
+    const tab = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
     })
+
+    const tabURL = getDomain(tab[0].url)
+
+    if (whitelist.indexOf(tabURL) !== -1) {
+      this.setState({ ...this.state, whitelisted: true })
+    } else {
+      this.setState({ ...this.state, whitelisted: false })
+    }
   }
 
   async toggleWhitelist() {
@@ -148,16 +147,12 @@ export class State extends Component {
 
     if (this.state.whitelisted) {
       // Remove from whitelist
-      backgroundScript.postMessage({
-        type: PopupConn.removeWhitelist,
-        payload: tabURL,
-      })
+      remoteFn('removeFromWhitelist', tabURL).then(
+        this.updateWhitelist.bind(this)
+      )
     } else {
       // Add to whitelist
-      backgroundScript.postMessage({
-        type: PopupConn.addWhitelist,
-        payload: tabURL,
-      })
+      remoteFn('addToWhitelist', tabURL).then(this.updateWhitelist.bind(this))
     }
   }
 
@@ -166,7 +161,7 @@ export class State extends Component {
       <App
         state={this.state}
         setState={this.setState}
-        toggleWhitelist={this.toggleWhitelist}
+        toggleWhitelist={this.toggleWhitelist.bind(this)}
       />
     )
   }
