@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight } from 'react-feather'
+import { ArrowRight, Settings } from 'react-feather'
 import { Switch, Button, Favicon } from '../common'
 import { hexHSL } from './contrast'
 import styles from './style.module.css'
@@ -39,10 +39,9 @@ export const App = ({ state, setState, toggleWhitelist }) => {
           </div>
 
           <div style={{ justifyContent: 'flex-end' }}>
-            <Switch
-              state={state.whitelisted}
-              checkedColour={'#b80000'}
-              onChange={() => toggleWhitelist()}
+            <Settings
+              onClick={() => window.open('./settings.html')}
+              style={{ width: '16px' }}
             />
           </div>
         </div>
