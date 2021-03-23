@@ -11,13 +11,6 @@ body {
   display: grid;
   margin: 24px;
   grid-gap: 8px;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  grid-auto-columns: 1fr;
-}
-
-.controlDouble {
-  grid-area: 1 / 1 / 2 / 3;
 }
 
 .accent {

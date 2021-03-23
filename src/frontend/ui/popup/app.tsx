@@ -1,4 +1,5 @@
 import React from 'react'
+import { ArrowRight } from 'react-feather'
 import { Switch, Button, Favicon } from '../common'
 import { hexHSL } from './contrast'
 import styles from './style.module.css'
@@ -56,16 +57,19 @@ export const App = ({ state, setState, toggleWhitelist }) => {
       </main>
       <div className={styles.controls}>
         <Button
-          isPrimary={true}
-          onClick={() => toggleWhitelist()}
-          className={styles.controlDouble}
+          onClick={() => window.open('./stats.html')}
+          style={{ backgroundColor: 'transparent' }}
         >
-          {state.whitelisted ? 'Block' : 'Allow'} ads and trackers on this site
+          View statistics{' '}
+          <ArrowRight
+            style={{
+              position: 'relative',
+              bottom: '-0.125em',
+              width: '1em',
+              height: '1em',
+            }}
+          />
         </Button>
-        <Button onClick={() => window.open('./stats.html')}>
-          View statistics
-        </Button>
-        <Button onClick={() => window.open('./settings.html')}>Settings</Button>
       </div>
     </div>
   )
