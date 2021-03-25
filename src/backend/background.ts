@@ -108,7 +108,7 @@ const init = async () => {
   }
 
   // Create a filter list using the cliqz filter engine
-  // TODO: Test if moving this into a webworker reduces addon load interruptions
+  // TODO [$605c3a4534b69900087896fd]: Test if moving this into a webworker reduces addon load interruptions
   engine = await FiltersEngine.fromLists(fetch, lists)
 
   console.log('Engine loaded')
@@ -223,7 +223,7 @@ browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
   init()
 
   // Bodge to clean up the old blacklist from people's computers
-  // TODO: Remove this at some point
+  // TODO [$605c3a4534b69900087896fe]: Remove this at some point
   browser.storage.local.remove('blacklistCache')
   browser.storage.local.remove('blacklistExpiry')
 })()
