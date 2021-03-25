@@ -27,9 +27,9 @@ export class State extends Component {
     blocked: 0,
     totalBlocked: 0,
     whitelisted: false,
-    // TODO [$605c3a4534b69900087896ff]: FIXME: Cannot use chrome:// in extensions without security issues
+    // TODO [#35]: FIXME: Cannot use chrome:// in extensions without security issues
     favicon: 'chrome://mozapps/skin/places/defaultFavicon.svg',
-    // TODO [$605c3a4534b6990008789700]: Make sure that the contrast between the text and the background works all the time
+    // TODO [#36]: Make sure that the contrast between the text and the background works all the time
     color: 'rgba(0,0,0,0)', // This creates a fade in with the color
     backgroundState: BackendState.Idle,
   }
