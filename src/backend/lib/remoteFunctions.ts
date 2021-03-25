@@ -41,8 +41,7 @@ export const remoteFn = (name: string, payload?: any): Promise<any> => {
     backend.onMessage.addListener(function (msg: FunctionReturnData) {
       if (msg.id === id) {
         // This message is the correct return
-        console.log(msg)
-        setTimeout(() => resolve(msg.payload), 10)
+        resolve(msg.payload)
       }
     })
   })

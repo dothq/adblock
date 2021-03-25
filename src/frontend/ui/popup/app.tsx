@@ -27,8 +27,6 @@ export const App: Component = ({ state, setState, toggleWhitelist }) => {
       : '#000'
     : 'white'
 
-  console.log(state.favicon)
-
   return (
     <div className={styles.container}>
       <main
