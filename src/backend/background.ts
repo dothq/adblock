@@ -3,12 +3,10 @@
 import { parse } from 'psl'
 import { FiltersEngine, Request } from '@cliqz/adblocker'
 
-import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
 import { PermStore } from './permStore'
 import { Settings } from './settings'
-import tempPort, { sleep } from './tempPort'
+import { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
-import { CosmeticsConn } from './constants/portConnections'
 import { defineFn, initFn } from './lib/remoteFunctions'
 import {
   SHIELD_DB_ADS_AND_TRACKERS,
@@ -16,7 +14,8 @@ import {
   SHIELD_DB_GAMBLING,
   SHIELD_DB_SOCIAL,
 } from './constants/db'
-let wasm = require('./rust/pkg')
+import { BackendState } from '../constants/state'
+// let wasm = require('./rust/pkg')
 
 // ================
 // User settings
@@ -36,8 +35,12 @@ let engine: FiltersEngine
 const whitelist = new PermStore('whitelist', [])
 
 // =================
+// State code
+let state = BackendState.Loading
+
+// =================
 // Blocking code
-const getDomain = (url) =>
+const getDomain = (url: string) =>
   parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
 /**
@@ -83,6 +86,9 @@ const requestHandler = (details: RequestListenerArgs) => {
  * Adds the event listener for blocking requests
  */
 const init = async () => {
+  // Set the state to loading
+  state = BackendState.Loading
+
   // Wait for storage objects to load
   await whitelist.load()
   await settings.load()
@@ -102,8 +108,7 @@ const init = async () => {
   }
 
   // Create a filter list using the cliqz filter engine
-  // TODO [#29]: Allow the customization of this list
-  // TODO [#30]: Generate default list in sheild db
+  // TODO: Test if moving this into a webworker reduces addon load interruptions
   engine = await FiltersEngine.fromLists(fetch, lists)
 
   console.log('Engine loaded')
@@ -113,6 +118,9 @@ const init = async () => {
     { urls: ['<all_urls>'] },
     ['blocking']
   )
+
+  // Set state to idle
+  state = BackendState.Idle
 }
 
 /**
@@ -167,6 +175,22 @@ defineFn('getCosmeticsFilters', async (payload) => {
   return engine.getCosmeticsFilters(payload)
 })
 
+// Function for getting the current state
+// Can be used in the UI to show when the addon is loading
+defineFn('getState', async () => state)
+
+// Get the total number of trackers blocked
+defineFn('getAllTrackersBlocked', async () => {
+  let totalBlocked = 0
+
+  for (const key in ltBlocked.data) {
+    const blocked = ltBlocked.data[key]
+    totalBlocked += blocked
+  }
+
+  return totalBlocked
+})
+
 // Start listening for function calls
 initFn()
 
@@ -187,11 +211,13 @@ const tabUpdated = (params) => {
   }
 }
 
+console.log(state)
+
 browser.tabs.onRemoved.addListener(tabRemoved)
 browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 ;(async () => {
   // Wait for the rust code to load
-  wasm = await wasm
+  // wasm = await wasm
 
   // Call the init function, so the blocker starts by default
   init()

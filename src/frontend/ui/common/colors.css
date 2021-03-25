@@ -5,6 +5,7 @@
   --green: #2cc74e;
   --neon: #00ffb7;
   --azure: #256ef5;
+  --azure-very-light: #dde8fd;
   --blue: #3250ed;
   --purple: #a451fc;
   --pink: #bd00ff;
@@ -93,6 +94,6 @@
     --nav-background-color: var(--gray-1);
     --nav-hover: var(--gray-5);
 
-    --text-primary: var(--neon);
+    --text-primary: var(--azure-very-light);
   }
 }

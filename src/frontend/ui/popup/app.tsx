@@ -1,15 +1,25 @@
 import React from 'react'
-import { ArrowRight, Settings } from 'react-feather'
+import { ArrowRight, Check, Settings } from 'react-feather'
+import { BackendState } from '../../../constants/state'
 import { Switch, Button, Favicon } from '../common'
 import { hexHSL } from './contrast'
+import { AppState } from './state'
 import styles from './style.module.css'
 
-export const App = ({ state, setState, toggleWhitelist }) => {
+type Props = {
+  state: AppState
+  setState: (state: AppState) => void
+  toggleWhitelist: () => void
+}
+
+type Component = (arg0: Props) => any
+
+export const App: Component = ({ state, setState, toggleWhitelist }) => {
   const themeTextColor = getComputedStyle(
     document.documentElement
   ).getPropertyValue('--color')
 
-  const textColor = state.whitelist
+  const textColor = state.whitelisted
     ? themeTextColor
     : state.color.includes('#')
     ? hexHSL(state.color).l < 0.56
@@ -28,8 +38,8 @@ export const App = ({ state, setState, toggleWhitelist }) => {
         <div className={styles.itemBar}>
           <div style={{ justifyContent: 'flex-start' }}>
             <Switch
-              state={state.whitelisted}
-              checkedColour={'#b80000'}
+              state={!state.whitelisted}
+              checkedColour={state.color}
               onChange={() => toggleWhitelist()}
             />
           </div>
@@ -41,7 +51,7 @@ export const App = ({ state, setState, toggleWhitelist }) => {
           <div style={{ justifyContent: 'flex-end' }}>
             <Settings
               onClick={() => window.open('./settings.html')}
-              style={{ width: '16px' }}
+              style={{ width: '16px', color: textColor }}
             />
           </div>
         </div>
@@ -55,9 +65,34 @@ export const App = ({ state, setState, toggleWhitelist }) => {
         </div>
       </main>
       <div className={styles.controls}>
+        {state.backgroundState === BackendState.Loading && (
+          <div>
+            <p>The adblocker is currently loading...</p>
+          </div>
+        )}
+
+        <div className={styles.info}>
+          <span>
+            <Check
+              style={{
+                position: 'relative',
+                bottom: '-0.125em',
+                width: '1em',
+                height: '1em',
+              }}
+            />
+            Total ads blocked
+          </span>
+
+          <span className={styles.infoText}>{state.totalBlocked}</span>
+        </div>
+
         <Button
           onClick={() => window.open('./stats.html')}
-          style={{ backgroundColor: 'transparent' }}
+          style={{
+            backgroundColor: 'transparent',
+            color: 'var(--text-primary)',
+          }}
         >
           View statistics{' '}
           <ArrowRight

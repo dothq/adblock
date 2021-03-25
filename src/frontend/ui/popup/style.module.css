@@ -39,3 +39,16 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.info {
+  display: grid;
+  grid-template-columns: auto min-content;
+}
+
+.info svg {
+  margin-right: 16px;
+}
+
+.infoText {
+  color: var(--color-disabled);
+}

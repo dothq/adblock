@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import psl from 'psl'
 
-import { PopupConn } from '../../../constants/settings'
 import { graphColors } from '../../constants/colors'
 
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
 import { App } from './app'
+import { BackendState } from '../../../constants/state'
 
 const getDomain = (url) =>
   psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
@@ -18,16 +18,20 @@ export type AppState = {
   whitelisted: boolean
   favicon: string
   color: string
+  backgroundState: BackendState
+  totalBlocked: number
 }
 
 export class State extends Component {
   state: AppState = {
     blocked: 0,
+    totalBlocked: 0,
     whitelisted: false,
     // TODO: FIXME: Cannot use chrome:// in extensions without security issues
     favicon: 'chrome://mozapps/skin/places/defaultFavicon.svg',
     // TODO: Make sure that the contrast between the text and the background works all the time
     color: 'rgba(0,0,0,0)', // This creates a fade in with the color
+    backgroundState: BackendState.Idle,
   }
 
   componentDidMount() {
@@ -57,6 +61,14 @@ export class State extends Component {
         })
       })
 
+    remoteFn('getState').then((state) =>
+      this.setState({ ...this.state, backgroundState: state })
+    )
+
+    remoteFn('getAllTrackersBlocked').then((count) =>
+      this.setState({ ...this.state, totalBlocked: count })
+    )
+
     remoteFn('getAds').then(async (blocked) => {
       // Get current tab
       const tab = await browser.tabs.query({
@@ -64,8 +76,6 @@ export class State extends Component {
         currentWindow: true,
       })
       const tabId = tab[0].id
-
-      remoteFn('getTabMetadata', tabId).then(console.log)
 
       // If this tab has had any ads blocked on it
       if (

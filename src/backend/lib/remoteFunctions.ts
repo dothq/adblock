@@ -18,10 +18,9 @@ export const initFn = () =>
   tempPort('co.dothq.shield.fn', (p) =>
     p.onMessage.addListener(async (msg: CallFunctionData) => {
       if (typeof functions[msg.name] === 'undefined') {
-        // Tabs can be defined on multiple scripts so this is irrelevant
-        // throw new Error(
-        //   `The function ${msg.name} has not been defined (yet). Please make sure that it is defined before use`
-        // )
+        throw new Error(
+          `The function ${msg.name} has not been defined (yet). Please make sure that it is defined before use`
+        )
       } else {
         p.postMessage({
           id: msg.id,
@@ -42,7 +41,8 @@ export const remoteFn = (name: string, payload?: any): Promise<any> => {
     backend.onMessage.addListener(function (msg: FunctionReturnData) {
       if (msg.id === id) {
         // This message is the correct return
-        resolve(msg.payload)
+        console.log(msg)
+        setTimeout(() => resolve(msg.payload), 10)
       }
     })
   })
