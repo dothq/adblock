@@ -1,11 +1,11 @@
 export const SHIELD_DB_ADS_AND_TRACKERS =
-  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/ADS_TRACKERS.json'
+  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/trackers.txt'
 
 export const SHIELD_DB_FAKE_NEWS =
-  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/FAKE_NEWS.json'
+  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/fake_news.txt'
 
 export const SHIELD_DB_GAMBLING =
-  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/GAMBLING.json'
+  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/gambling.txt'
 
 export const SHIELD_DB_SOCIAL =
-  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/SOCIAL.json'
+  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/social.txt'

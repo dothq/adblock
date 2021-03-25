@@ -3,14 +3,19 @@
 import { parse } from 'psl'
 import { FiltersEngine, Request } from '@cliqz/adblocker'
 
-import { PopupConn, SettingsConn, StatsConn } from '../constants/settings'
 import { PermStore } from './permStore'
 import { Settings } from './settings'
-import tempPort, { sleep } from './tempPort'
+import { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
-import { CosmeticsConn } from './constants/portConnections'
-import { defineFn } from './lib/remoteFunctions'
-let wasm = require('./rust/pkg')
+import { defineFn, initFn } from './lib/remoteFunctions'
+import {
+  SHIELD_DB_ADS_AND_TRACKERS,
+  SHIELD_DB_FAKE_NEWS,
+  SHIELD_DB_GAMBLING,
+  SHIELD_DB_SOCIAL,
+} from './constants/db'
+import { BackendState } from '../constants/state'
+// let wasm = require('./rust/pkg')
 
 // ================
 // User settings
@@ -30,8 +35,12 @@ let engine: FiltersEngine
 const whitelist = new PermStore('whitelist', [])
 
 // =================
+// State code
+let state = BackendState.Loading
+
+// =================
 // Blocking code
-const getDomain = (url) =>
+const getDomain = (url: string) =>
   parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
 /**
@@ -77,19 +86,30 @@ const requestHandler = (details: RequestListenerArgs) => {
  * Adds the event listener for blocking requests
  */
 const init = async () => {
+  // Set the state to loading
+  state = BackendState.Loading
+
   // Wait for storage objects to load
   await whitelist.load()
   await settings.load()
 
+  // Create what lists should be loaded
+  const lists = [SHIELD_DB_ADS_AND_TRACKERS]
+
+  // Add each list if selected
+  if (settings.data.lists.fakeNews) {
+    lists.push(SHIELD_DB_FAKE_NEWS)
+  }
+  if (settings.data.lists.gambling) {
+    lists.push(SHIELD_DB_GAMBLING)
+  }
+  if (settings.data.lists.social) {
+    lists.push(SHIELD_DB_SOCIAL)
+  }
+
   // Create a filter list using the cliqz filter engine
-  // TODO [#29]: Allow the customization of this list
-  // TODO [#30]: Generate default list in sheild db
-  engine = await FiltersEngine.fromLists(fetch, [
-    // Common lists
-    'https://easylist.to/easylist/easylist.txt',
-    'https://easylist.to/easylist/easyprivacy.txt',
-    'https://hosts.netlify.app/Pro/adblock.txt',
-  ])
+  // TODO: Test if moving this into a webworker reduces addon load interruptions
+  engine = await FiltersEngine.fromLists(fetch, lists)
 
   console.log('Engine loaded')
 
@@ -98,6 +118,9 @@ const init = async () => {
     { urls: ['<all_urls>'] },
     ['blocking']
   )
+
+  // Set state to idle
+  state = BackendState.Idle
 }
 
 /**
@@ -113,6 +136,7 @@ const close = () => {
 // Removes an entry from the whitelist. Used by the popup
 defineFn('removeFromWhitelist', async (site: string) => {
   whitelist.data = whitelist.data.filter((value) => value != site)
+  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -120,6 +144,7 @@ defineFn('removeFromWhitelist', async (site: string) => {
 // Adds an entry to the whitelist. Used by the popup
 defineFn('addToWhitelist', async (site: string) => {
   whitelist.data.push(site)
+  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -150,6 +175,25 @@ defineFn('getCosmeticsFilters', async (payload) => {
   return engine.getCosmeticsFilters(payload)
 })
 
+// Function for getting the current state
+// Can be used in the UI to show when the addon is loading
+defineFn('getState', async () => state)
+
+// Get the total number of trackers blocked
+defineFn('getAllTrackersBlocked', async () => {
+  let totalBlocked = 0
+
+  for (const key in ltBlocked.data) {
+    const blocked = ltBlocked.data[key]
+    totalBlocked += blocked
+  }
+
+  return totalBlocked
+})
+
+// Start listening for function calls
+initFn()
+
 // Code to clean up the adsOnTabs variable. This will discard tabs that have been
 // deleted or have changed their url
 const tabRemoved = (tabId: number) => {
@@ -159,19 +203,27 @@ const tabRemoved = (tabId: number) => {
   }
 }
 
-const tabUpdated = ({ tabId }) => {
+const tabUpdated = (params) => {
+  const { tabId } = params
   if (typeof adsOnTabs[tabId] !== 'undefined') {
     console.log(`Tab reloaded: ${tabId}`)
     delete adsOnTabs[tabId]
   }
 }
 
+console.log(state)
+
 browser.tabs.onRemoved.addListener(tabRemoved)
 browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 ;(async () => {
   // Wait for the rust code to load
-  wasm = await wasm
+  // wasm = await wasm
 
   // Call the init function, so the blocker starts by default
   init()
+
+  // Bodge to clean up the old blacklist from people's computers
+  // TODO: Remove this at some point
+  browser.storage.local.remove('blacklistCache')
+  browser.storage.local.remove('blacklistExpiry')
 })()

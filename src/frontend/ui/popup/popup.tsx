@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom'
-import { App } from './app'
+import { State } from './state'
 
 import '../common/common.css'
 
-ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(<State />, document.getElementById('root'))
