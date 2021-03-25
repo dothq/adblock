@@ -6,6 +6,7 @@ import { graphColors } from '../../constants/colors'
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
 import { App } from './app'
 import { BackendState } from '../../../constants/state'
+import defaultFavicon from '../assets/defaultFavicon.svg'
 
 const getDomain = (url) =>
   psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
@@ -27,8 +28,7 @@ export class State extends Component {
     blocked: 0,
     totalBlocked: 0,
     whitelisted: false,
-    // TODO [#35]: FIXME: Cannot use chrome:// in extensions without security issues
-    favicon: 'chrome://mozapps/skin/places/defaultFavicon.svg',
+    favicon: defaultFavicon,
     color: 'rgba(0,0,0,0)', // This creates a fade in with the color
     backgroundState: BackendState.Idle,
   }
@@ -55,7 +55,7 @@ export class State extends Component {
 
         this.setState({
           ...this.state,
-          favicon: tab[0].favIconUrl || DEFAULT_COLOR,
+          favicon: tab[0].favIconUrl || defaultFavicon,
           color: executed[0] || DEFAULT_COLOR,
         })
       })
