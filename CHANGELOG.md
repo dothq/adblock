@@ -10,11 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Custom blocking script for Youtube
+- Cosmetic filtering
+
+### Changed
+
+- Restyle popup
 
 ### Fixed
 
-- All the items in the blocklist are now loaded
-- Fix chunking to improve load time performance
+- Improve blocking by using the cliqz engine
 
 ## [0.1.0pre3]
 
