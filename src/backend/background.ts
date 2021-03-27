@@ -221,9 +221,4 @@ browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 
   // Call the init function, so the blocker starts by default
   init()
-
-  // Bodge to clean up the old blacklist from people's computers
-  // TODO [#34]: Remove this at some point
-  browser.storage.local.remove('blacklistCache')
-  browser.storage.local.remove('blacklistExpiry')
 })()
