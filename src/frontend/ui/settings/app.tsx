@@ -3,14 +3,9 @@
 import React, { Component } from 'react'
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
 
-import { DEFAULT_SETTINGS, SettingsConn } from '../../../constants/settings'
+import { DEFAULT_SETTINGS } from '../../../constants/settings'
 import { Button, Checkbox } from '../common'
 import styles from './settings.module.css'
-
-// Connect to the background script
-const backgroundScript = browser.runtime.connect({
-  name: 'co.dothq.shield.ui.settings',
-})
 
 interface AppState {
   settings?: any

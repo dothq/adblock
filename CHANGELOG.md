@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Changed
+
+- ⚡️ Move cliqz engine loading to a webworker to improve responsiveness
+- 🔧 Additional lists (social, gambling and fakenews) are disabled by default
+
+### Fixed
+
+- 🐛 Settings not applying unless the addon was disabled then enabled
+
 ## [0.1.0pre4]
 
 ### Added
