@@ -9,3 +9,6 @@ export const SHIELD_DB_GAMBLING =
 
 export const SHIELD_DB_SOCIAL =
   'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/social.txt'
+
+export const SHIELD_DB_IP_GRABBER =
+  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/ip_grabbers.txt'

@@ -3,7 +3,7 @@
 import React, { Component } from 'react'
 import { remoteFn } from '../../../backend/lib/remoteFunctions'
 
-import { DEFAULT_SETTINGS } from '../../../constants/settings'
+import { DEFAULT_SETTINGS, SettingsStorage } from '../../../constants/settings'
 import { Button, Checkbox } from '../common'
 import styles from './settings.module.css'
 
@@ -40,7 +40,7 @@ class SettingsApp extends Component<AppState> {
   }
 
   render() {
-    let settings = this.state.settings
+    let settings: SettingsStorage = this.state.settings
 
     return (
       <div className={styles.page}>
@@ -76,6 +76,15 @@ class SettingsApp extends Component<AppState> {
                 }}
               >
                 Social media filter list
+              </Checkbox>
+              <Checkbox
+                value={settings.lists.ipGrabbers}
+                onChange={() => {
+                  settings.lists.ipGrabbers = !settings.lists.ipGrabbers
+                  this.setState({ settings })
+                }}
+              >
+                IP Grabbers filter list
               </Checkbox>
             </div>
 

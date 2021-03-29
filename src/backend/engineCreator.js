@@ -5,11 +5,10 @@ import {
   SHIELD_DB_FAKE_NEWS,
   SHIELD_DB_GAMBLING,
   SHIELD_DB_SOCIAL,
+  SHIELD_DB_IP_GRABBER,
 } from './constants/db'
 
 onmessage = async (settings) => {
-  console.log('worker')
-
   // Create what lists should be loaded
   const lists = [SHIELD_DB_ADS_AND_TRACKERS]
 
@@ -23,12 +22,13 @@ onmessage = async (settings) => {
   if (settings.data.lists.social) {
     lists.push(SHIELD_DB_SOCIAL)
   }
+  if (settings.data.lists.ipGrabber) {
+    lists.push(SHIELD_DB_IP_GRABBER)
+  }
 
   // Create a filter list using the cliqz filter engine
-  // TODO [#33]: Test if moving this into a webworker reduces addon load interruptions
   const engine = await FiltersEngine.fromLists(fetch, lists)
 
-  console.log('test')
-
+  // Serialize the engine and send it back
   self.postMessage(engine.serialize())
 }

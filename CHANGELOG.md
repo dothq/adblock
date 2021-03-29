@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
+- 💬 List for ip grabbers
+
 ### Changed
 
 - ⚡️ Move cliqz engine loading to a webworker to improve responsiveness
