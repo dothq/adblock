@@ -33,4 +33,8 @@ export class Settings extends PermStore<SettingsStorage> {
     // Call the parents class load logic
     await super.load()
   }
+
+  async checkLoad() {
+    await super.load()
+  }
 }
