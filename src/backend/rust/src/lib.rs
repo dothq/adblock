@@ -12,12 +12,6 @@ use web_sys::console;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-//* Other libraries
-extern crate globset;
-use globset::{Glob, GlobSet, GlobSetBuilder};
-
-static mut BLACK_LIST: Option<Box<GlobSet>> = Option::None;
-
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
 pub fn main_js() -> Result<(), JsValue> {

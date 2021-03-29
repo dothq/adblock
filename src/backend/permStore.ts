@@ -1,7 +1,7 @@
 export class PermStore<DataType> {
   private key: string
-  private memData: DataType
-  private loadingPromise: Promise<void>
+  protected memData: DataType
+  protected loadingPromise: Promise<void>
 
   constructor(key: string, defaultData: DataType) {
     // Assign variable

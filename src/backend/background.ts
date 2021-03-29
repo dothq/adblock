@@ -1,21 +1,23 @@
 /// <reference types="web-ext-types"/>
 
 import { parse } from 'psl'
-import { FiltersEngine, Request } from '@cliqz/adblocker'
+import {
+  CosmeticFilter,
+  FiltersEngine,
+  NetworkFilter,
+  Request,
+} from '@cliqz/adblocker'
 
 import { PermStore } from './permStore'
 import { Settings } from './settings'
 import { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
 import { defineFn, initFn } from './lib/remoteFunctions'
-import {
-  SHIELD_DB_ADS_AND_TRACKERS,
-  SHIELD_DB_FAKE_NEWS,
-  SHIELD_DB_GAMBLING,
-  SHIELD_DB_SOCIAL,
-} from './constants/db'
 import { BackendState } from '../constants/state'
 // let wasm = require('./rust/pkg')
+
+// Load the engineCreator webworker
+const engineCreator = new Worker(new URL('./engineCreator.js', import.meta.url))
 
 // ================
 // User settings
@@ -42,6 +44,15 @@ let state = BackendState.Loading
 // Blocking code
 const getDomain = (url: string) =>
   parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
+
+const createEngine: () => Promise<Uint8Array> = () =>
+  new Promise(async (resolve) => {
+    await settings.checkLoad()
+
+    engineCreator.onmessage = (engine: any) =>
+      resolve(engine.data as Uint8Array)
+    engineCreator.postMessage(settings.data)
+  })
 
 /**
  * The listener for webRequests. Blocks all that it receives and adds them to logger
@@ -93,25 +104,11 @@ const init = async () => {
   await whitelist.load()
   await settings.load()
 
-  // Create what lists should be loaded
-  const lists = [SHIELD_DB_ADS_AND_TRACKERS]
-
-  // Add each list if selected
-  if (settings.data.lists.fakeNews) {
-    lists.push(SHIELD_DB_FAKE_NEWS)
-  }
-  if (settings.data.lists.gambling) {
-    lists.push(SHIELD_DB_GAMBLING)
-  }
-  if (settings.data.lists.social) {
-    lists.push(SHIELD_DB_SOCIAL)
-  }
-
-  // Create a filter list using the cliqz filter engine
-  // TODO [#33]: Test if moving this into a webworker reduces addon load interruptions
-  engine = await FiltersEngine.fromLists(fetch, lists)
-
-  console.log('Engine loaded')
+  console.log('starting worker')
+  console.time('Engine loaded')
+  engine = FiltersEngine.deserialize(await createEngine())
+  console.timeEnd('Engine loaded')
+  console.log(engine)
 
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
@@ -221,9 +218,4 @@ browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
 
   // Call the init function, so the blocker starts by default
   init()
-
-  // Bodge to clean up the old blacklist from people's computers
-  // TODO [#34]: Remove this at some point
-  browser.storage.local.remove('blacklistCache')
-  browser.storage.local.remove('blacklistExpiry')
 })()

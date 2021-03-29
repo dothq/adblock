@@ -19,4 +19,22 @@ export class Settings extends PermStore<SettingsStorage> {
       this.data.version = LATEST_SETTINGS_VERSION
     }
   }
+
+  async load() {
+    // Check if data has already been loaded. If it has, then restart the loading
+    // process
+    if (this.memData) {
+      // Clear memData
+      delete this.memData
+      // Restart the loading process
+      this.loadingPromise = this.loadData(DEFAULT_SETTINGS)
+    }
+
+    // Call the parents class load logic
+    await super.load()
+  }
+
+  async checkLoad() {
+    await super.load()
+  }
 }
