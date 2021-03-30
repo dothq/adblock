@@ -1,12 +1,7 @@
 /// <reference types="web-ext-types"/>
 
 import { parse } from 'psl'
-import {
-  CosmeticFilter,
-  FiltersEngine,
-  NetworkFilter,
-  Request,
-} from '@cliqz/adblocker'
+import { FiltersEngine, Request } from '@cliqz/adblocker'
 
 import { PermStore } from './permStore'
 import { Settings } from './settings'
@@ -14,6 +9,7 @@ import { sleep } from './tempPort'
 import { RequestListenerArgs } from './types'
 import { defineFn, initFn } from './lib/remoteFunctions'
 import { BackendState } from '../constants/state'
+import { timeEnd, timeStart } from './lib/logger'
 // let wasm = require('./rust/pkg')
 
 // Load the engineCreator webworker
@@ -25,7 +21,7 @@ const settings = new Settings()
 
 // ================
 // Data collection
-let adsOnTabs = {}
+const adsOnTabs = {}
 const ltBlocked = new PermStore('longTermBlockList', {})
 
 // ===============
@@ -46,11 +42,11 @@ const getDomain = (url: string) =>
   parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
 const createEngine: () => Promise<Uint8Array> = () =>
+  // eslint-disable-next-line no-async-promise-executor
   new Promise(async (resolve) => {
     await settings.checkLoad()
 
-    engineCreator.onmessage = (engine: any) =>
-      resolve(engine.data as Uint8Array)
+    engineCreator.onmessage = (engine) => resolve(engine.data as Uint8Array)
     engineCreator.postMessage(settings.data)
   })
 
@@ -104,11 +100,9 @@ const init = async () => {
   await whitelist.load()
   await settings.load()
 
-  console.log('starting worker')
-  console.time('Engine loaded')
+  timeStart('Engine loaded')
   engine = FiltersEngine.deserialize(await createEngine())
-  console.timeEnd('Engine loaded')
-  console.log(engine)
+  timeEnd('Engine loaded')
 
   browser.webRequest.onBeforeRequest.addListener(
     requestHandler,
@@ -133,7 +127,6 @@ const close = () => {
 // Removes an entry from the whitelist. Used by the popup
 defineFn('removeFromWhitelist', async (site: string) => {
   whitelist.data = whitelist.data.filter((value) => value != site)
-  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -141,7 +134,6 @@ defineFn('removeFromWhitelist', async (site: string) => {
 // Adds an entry to the whitelist. Used by the popup
 defineFn('addToWhitelist', async (site: string) => {
   whitelist.data.push(site)
-  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -169,7 +161,8 @@ defineFn('getCosmeticsFilters', async (payload) => {
     await sleep(100)
   }
 
-  return engine.getCosmeticsFilters(payload)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return engine.getCosmeticsFilters(payload as any)
 })
 
 // Function for getting the current state
@@ -195,7 +188,6 @@ initFn()
 // deleted or have changed their url
 const tabRemoved = (tabId: number) => {
   if (typeof adsOnTabs[tabId] !== 'undefined') {
-    console.log(`Tab removed: ${tabId}`)
     delete adsOnTabs[tabId]
   }
 }
@@ -203,12 +195,9 @@ const tabRemoved = (tabId: number) => {
 const tabUpdated = (params) => {
   const { tabId } = params
   if (typeof adsOnTabs[tabId] !== 'undefined') {
-    console.log(`Tab reloaded: ${tabId}`)
     delete adsOnTabs[tabId]
   }
 }
-
-console.log(state)
 
 browser.tabs.onRemoved.addListener(tabRemoved)
 browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)

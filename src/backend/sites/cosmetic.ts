@@ -11,7 +11,6 @@ const url = window.location.href
 const hostname = window.location.hostname
 const domain = getDomain(url)
 
-console.log('Cosmetics')
 ;(async () => {
   const whitelist = await remoteFn('getWhitelist')
   if (whitelist.includes(domain)) return
@@ -32,6 +31,4 @@ console.log('Cosmetics')
       document.head.append(style)
     }
   }
-
-  console.log('Cosmetics added')
 })()

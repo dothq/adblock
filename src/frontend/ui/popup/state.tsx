@@ -8,7 +8,7 @@ import { App } from './app'
 import { BackendState } from '../../../constants/state'
 import defaultFavicon from '../assets/defaultFavicon.svg'
 
-const getDomain = (url) =>
+const getDomain = (url: string) =>
   psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
     .domain
 
@@ -33,7 +33,7 @@ export class State extends Component {
     backgroundState: BackendState.Idle,
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     browser.tabs
       .query({
         active: true,
@@ -96,32 +96,44 @@ export class State extends Component {
         }
 
         blockedURLs = blockedURLs
-          .map((url) => ({
+          .map((url: string) => ({
             num: 1,
             url: getDomain(url),
           }))
-          .filter((curr, i, arr) => {
-            const match = arr.findIndex((t) => t.url === curr.url)
-            const notDuplicate = match === i
+          .filter(
+            (
+              curr: { url: string; num: number },
+              i: number,
+              arr: { url: string; num: number }[]
+            ) => {
+              const match = arr.findIndex(
+                (t: { url: string }) => t.url === curr.url
+              )
+              const notDuplicate = match === i
 
-            if (!notDuplicate) {
-              arr[match].num = arr[match].num + 1
+              if (!notDuplicate) {
+                arr[match].num = arr[match].num + 1
+              }
+
+              return notDuplicate
             }
-
-            return notDuplicate
-          })
+          )
 
         let singleItem = 0
-        blockedURLs.forEach((element) => (singleItem += element.num))
+        blockedURLs.forEach(
+          (element: { num: number }) => (singleItem += element.num)
+        )
         const blockedNum = singleItem
         singleItem = 100 / singleItem
 
         this.setState({
-          ads: blockedURLs.map((url, i) => ({
-            label: url.url,
-            value: singleItem * url.num,
-            color: getColor(i),
-          })),
+          ads: blockedURLs.map(
+            (url: { url: string; num: number }, i: number) => ({
+              label: url.url,
+              value: singleItem * url.num,
+              color: getColor(i),
+            })
+          ),
           blocked: blockedNum,
         })
       }
@@ -130,7 +142,7 @@ export class State extends Component {
     remoteFn('getWhitelist').then(this.updateWhitelist.bind(this))
   }
 
-  async updateWhitelist(whitelist: string[]) {
+  async updateWhitelist(whitelist: string[]): Promise<void> {
     // Get current tab
     const tab = await browser.tabs.query({
       active: true,
@@ -146,7 +158,7 @@ export class State extends Component {
     }
   }
 
-  async toggleWhitelist() {
+  async toggleWhitelist(): Promise<void> {
     // Common function
     const tab = await browser.tabs.query({
       active: true,
@@ -165,7 +177,7 @@ export class State extends Component {
     }
   }
 
-  render() {
+  render(): JSX.Element {
     return (
       <App
         state={this.state}

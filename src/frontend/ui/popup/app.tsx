@@ -12,9 +12,9 @@ type Props = {
   toggleWhitelist: () => void
 }
 
-type Component = (arg0: Props) => any
+type Component = (arg0: Props) => JSX.Element
 
-export const App: Component = ({ state, setState, toggleWhitelist }) => {
+export const App: Component = ({ state, toggleWhitelist }) => {
   const themeTextColor = getComputedStyle(
     document.documentElement
   ).getPropertyValue('--color')

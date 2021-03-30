@@ -8,13 +8,13 @@ import { Button, Checkbox } from '../common'
 import styles from './settings.module.css'
 
 interface AppState {
-  settings?: any
+  settings?: SettingsStorage
 }
 
 class SettingsApp extends Component<AppState> {
   state: AppState = {}
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.fetchSettings()
   }
 
@@ -23,24 +23,21 @@ class SettingsApp extends Component<AppState> {
    *
    * @memberof SettingsApp
    */
-  async fetchSettings() {
+  async fetchSettings(): Promise<void> {
     let settings = (await browser.storage.local.get('settings')).settings || {}
 
     // Check if settings exists
     if (JSON.stringify(settings) == '{}') {
-      console.log('Setting settings to default')
       settings = DEFAULT_SETTINGS
       await browser.storage.local.remove('settings')
       await browser.storage.local.set({ settings })
     }
 
-    console.log(JSON.stringify(settings))
-
     this.setState({ settings })
   }
 
-  render() {
-    let settings: SettingsStorage = this.state.settings
+  render(): JSX.Element {
+    const settings: SettingsStorage = this.state.settings
 
     return (
       <div className={styles.page}>

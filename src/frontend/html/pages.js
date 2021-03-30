@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
 // This file is used by webpack to get a list of html pages to copy to the dist
 // directory. That is why this isn't typescript and uses commonjs exports
 

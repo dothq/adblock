@@ -1,15 +1,15 @@
-import React, { HTMLAttributes } from 'react'
+import React, { MouseEventHandler } from 'react'
 
 import buttonStyle from './btn.module.css'
 
 type ButtonProps = {
   className?: string
-  children: any
-  onClick?: any
+  children: JSX.Element
+  onClick?: MouseEventHandler<HTMLButtonElement>
   isPrimary?: boolean
-  style?: object
+  style?: Record<string, unknown>
 }
-type ButtonComponent = (arg0: ButtonProps) => any
+type ButtonComponent = (arg0: ButtonProps) => JSX.Element
 
 const Button: ButtonComponent = ({
   className = '',

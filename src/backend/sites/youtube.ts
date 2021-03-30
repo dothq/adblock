@@ -4,6 +4,7 @@
 // is to just click the skip button instantly and seem like we have properly skipped
 // the ad. The skip button ad is currently .ytp-ad-text.ytp-ad-skip-button-text
 
+import { println } from '../lib/logger'
 import { remoteFn } from '../lib/remoteFunctions'
 
 // Needs to be in an async block to get the whitelist
@@ -21,13 +22,12 @@ import { remoteFn } from '../lib/remoteFunctions'
     if (skipButton) {
       // Lets "smash that skip button"
       skipButton.click()
-      // TODO [#26]: Automatically remove console.log's in production
       // Provide feedback in the console
-      console.log('Video was skipped')
+      println('Video was skipped')
     }
   }, 100)
 
-  console.log(
+  println(
     '================================\nDot Shield is enabled on youtube.com\nWe will try to block all ads on this webpage'
   )
 })()

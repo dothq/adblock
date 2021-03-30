@@ -10,7 +10,7 @@ export class Settings extends PermStore<SettingsStorage> {
     super('settings', DEFAULT_SETTINGS)
   }
 
-  protected async loadData(defaultData: SettingsStorage) {
+  protected async loadData(defaultData: SettingsStorage): Promise<void> {
     await super.loadData(defaultData)
 
     // Update settings if it is outdated
@@ -20,7 +20,7 @@ export class Settings extends PermStore<SettingsStorage> {
     }
   }
 
-  async load() {
+  async load(): Promise<void> {
     // Check if data has already been loaded. If it has, then restart the loading
     // process
     if (this.memData) {
@@ -34,7 +34,7 @@ export class Settings extends PermStore<SettingsStorage> {
     await super.load()
   }
 
-  async checkLoad() {
+  async checkLoad(): Promise<void> {
     await super.load()
   }
 }
