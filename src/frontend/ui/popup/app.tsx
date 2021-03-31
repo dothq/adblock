@@ -94,15 +94,17 @@ export const App: Component = ({ state, toggleWhitelist }) => {
             color: 'var(--text-primary)',
           }}
         >
-          View statistics{' '}
-          <ArrowRight
-            style={{
-              position: 'relative',
-              bottom: '-0.125em',
-              width: '1em',
-              height: '1em',
-            }}
-          />
+          <>
+            View statistics{' '}
+            <ArrowRight
+              style={{
+                position: 'relative',
+                bottom: '-0.125em',
+                width: '1em',
+                height: '1em',
+              }}
+            />
+          </>
         </Button>
       </div>
     </div>

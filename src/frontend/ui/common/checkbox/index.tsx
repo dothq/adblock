@@ -5,7 +5,7 @@ import style from './checkbox.module.css'
 
 type CheckboxType = (arg0: {
   children: JSX.Element
-  value?: string
+  value?: boolean
   onChange?: () => void
 }) => JSX.Element
 

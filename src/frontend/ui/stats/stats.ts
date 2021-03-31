@@ -17,7 +17,8 @@ const ctx = (document.getElementById(
 const totalBlockedEl = document.getElementById('totalBlocked')
 
 ;(async () => {
-  const payload = await remoteFn('getLongTermStats')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payload = (await remoteFn('getLongTermStats')) as any
 
   const data = []
   const labels = []

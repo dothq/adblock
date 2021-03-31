@@ -12,14 +12,14 @@ const hostname = window.location.hostname
 const domain = getDomain(url)
 
 ;(async () => {
-  const whitelist = await remoteFn('getWhitelist')
+  const whitelist = (await remoteFn('getWhitelist')) as string[]
   if (whitelist.includes(domain)) return
 
-  const payload = await remoteFn('getCosmeticsFilters', {
+  const payload = (await remoteFn('getCosmeticsFilters', {
     url,
     hostname,
     domain,
-  })
+  })) as { active: boolean; styles: string }
 
   if (payload.active) {
     if (payload.styles) {

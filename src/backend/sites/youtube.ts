@@ -9,7 +9,7 @@ import { remoteFn } from '../lib/remoteFunctions'
 
 // Needs to be in an async block to get the whitelist
 ;(async () => {
-  const whitelist = await remoteFn('getWhitelist')
+  const whitelist = (await remoteFn('getWhitelist')) as string[]
   if (whitelist.includes('youtube.com')) return
 
   setInterval(() => {

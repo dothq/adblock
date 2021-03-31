@@ -54,7 +54,7 @@ class SettingsApp extends Component<AppState> {
                   this.setState({ settings })
                 }}
               >
-                Fake news filter list
+                <>Fake news filter list</>
               </Checkbox>
               <Checkbox
                 value={settings.lists.gambling}
@@ -63,7 +63,7 @@ class SettingsApp extends Component<AppState> {
                   this.setState({ settings })
                 }}
               >
-                Gambling filter list
+                <>Gambling filter list</>
               </Checkbox>
               <Checkbox
                 value={settings.lists.social}
@@ -72,7 +72,7 @@ class SettingsApp extends Component<AppState> {
                   this.setState({ settings })
                 }}
               >
-                Social media filter list
+                <>Social media filter list</>
               </Checkbox>
               <Checkbox
                 value={settings.lists.ipGrabbers}
@@ -81,7 +81,7 @@ class SettingsApp extends Component<AppState> {
                   this.setState({ settings })
                 }}
               >
-                IP Grabbers filter list
+                <>IP Grabbers filter list</>
               </Checkbox>
             </div>
 
@@ -92,7 +92,7 @@ class SettingsApp extends Component<AppState> {
                 await remoteFn('reloadBackend')
               }}
             >
-              Save Settings
+              <>Save Settings</>
             </Button>
           </>
         )}
