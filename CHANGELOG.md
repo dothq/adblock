@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - 💬 List for ip grabbers
+- 💄 Minor UI changes to improve the feel of the extension
 
 ### Changed
 
