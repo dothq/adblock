@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - ⚡️ Move cliqz engine loading to a webworker to improve responsiveness
+- ⚡️ Cosmetics load at document start to improve responsiveness
 - 🔧 Additional lists (social, gambling and fakenews) are disabled by default
 
 ### Fixed
