@@ -7,6 +7,7 @@ type ButtonProps = {
   children: JSX.Element
   onClick?: MouseEventHandler<HTMLButtonElement>
   isPrimary?: boolean
+  disabled?: boolean
   style?: Record<string, unknown>
 }
 type ButtonComponent = (arg0: ButtonProps) => JSX.Element
@@ -16,6 +17,7 @@ const Button: ButtonComponent = ({
   children,
   onClick = undefined,
   isPrimary = false,
+  disabled = false,
   style = {},
 }) => (
   <button
@@ -24,6 +26,7 @@ const Button: ButtonComponent = ({
     } ${className}`}
     onClick={onClick}
     style={style}
+    disabled={disabled}
   >
     {children}
   </button>

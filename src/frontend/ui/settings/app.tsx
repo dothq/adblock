@@ -9,10 +9,11 @@ import styles from './settings.module.css'
 
 interface AppState {
   settings?: SettingsStorage
+  hasChanged: boolean
 }
 
-class SettingsApp extends Component<AppState> {
-  state: AppState = {}
+class SettingsApp extends Component {
+  state: AppState = { hasChanged: false }
 
   componentDidMount(): void {
     this.fetchSettings()
@@ -33,7 +34,7 @@ class SettingsApp extends Component<AppState> {
       await browser.storage.local.set({ settings })
     }
 
-    this.setState({ settings })
+    this.setState({ hasChanged: this.state.hasChanged, settings })
   }
 
   render(): JSX.Element {
@@ -46,12 +47,12 @@ class SettingsApp extends Component<AppState> {
         {settings && (
           <>
             <h2>Filter lists</h2>
-            <div>
+            <div style={{ marginBottom: 16 }}>
               <Checkbox
                 value={settings.lists.fakeNews}
                 onChange={() => {
                   settings.lists.fakeNews = !settings.lists.fakeNews
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
                 <>Fake news filter list</>
@@ -60,7 +61,7 @@ class SettingsApp extends Component<AppState> {
                 value={settings.lists.gambling}
                 onChange={() => {
                   settings.lists.gambling = !settings.lists.gambling
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
                 <>Gambling filter list</>
@@ -69,7 +70,7 @@ class SettingsApp extends Component<AppState> {
                 value={settings.lists.social}
                 onChange={() => {
                   settings.lists.social = !settings.lists.social
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
                 <>Social media filter list</>
@@ -78,7 +79,7 @@ class SettingsApp extends Component<AppState> {
                 value={settings.lists.ipGrabbers}
                 onChange={() => {
                   settings.lists.ipGrabbers = !settings.lists.ipGrabbers
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
                 <>IP Grabbers filter list</>
@@ -90,7 +91,9 @@ class SettingsApp extends Component<AppState> {
                 await browser.storage.local.remove('settings')
                 await browser.storage.local.set({ settings })
                 await remoteFn('reloadBackend')
+                this.setState({ ...this.state, hasChanged: false })
               }}
+              disabled={!this.state.hasChanged}
             >
               <>Save Settings</>
             </Button>

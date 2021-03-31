@@ -147,7 +147,7 @@ defineFn('getAds', async () => adsOnTabs)
 // Restart the backend. Used by the settings ui when changes are made to settings
 defineFn('reloadBackend', async () => {
   close()
-  await init()
+  init()
 })
 
 // Define a function that can be used to pull the long term statistics for displaying
