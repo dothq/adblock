@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, Check, Settings } from 'react-feather'
+import { ArrowRight, Check, Loader, Settings } from 'react-feather'
 import { BackendState } from '../../../constants/state'
 import { Switch, Button, Favicon } from '../common'
 import { hexHSL } from './contrast'
@@ -66,8 +66,26 @@ export const App: Component = ({ state, toggleWhitelist }) => {
       </main>
       <div className={styles.controls}>
         {state.backgroundState === BackendState.Loading && (
-          <div>
-            <p>The adblocker is currently loading...</p>
+          <div
+            className={styles.info}
+            style={{
+              backgroundColor: 'var(--info)',
+              border: '2px solid var(--info-border)',
+              borderRadius: '4px',
+              padding: 16,
+            }}
+          >
+            <span>
+              <Loader
+                style={{
+                  position: 'relative',
+                  bottom: '-0.125em',
+                  width: '1em',
+                  height: '1em',
+                }}
+              />
+              Ad blocker loading...
+            </span>
           </div>
         )}
 

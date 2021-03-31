@@ -43,6 +43,7 @@ body {
 .info {
   display: grid;
   grid-template-columns: auto min-content;
+  margin-bottom: 8px;
 }
 
 .info svg {
