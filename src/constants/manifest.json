@@ -31,18 +31,6 @@
   "browser_action": {
     "default_popup": "popup.html",
     "default_icon": "icons/shield.svg",
-    "theme_icons": [
-      {
-        "light": "icons/shieldDark.svg",
-        "dark": "icons/shield.svg",
-        "size": 16
-      },
-      {
-        "light": "icons/shieldDark.svg",
-        "dark": "icons/shield.svg",
-        "size": 32
-      }
-    ],
     "default_title": "Dot Shield"
   },
   "manifest_version": 2,
