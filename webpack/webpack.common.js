@@ -57,7 +57,7 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 10000,
-              name: './font/[hash].[ext]',
+              name: './font/[name].[ext]',
               mimetype: 'application/font-woff',
             },
           },
@@ -68,6 +68,9 @@ module.exports = {
         use: [
           {
             loader: 'file-loader',
+            options: {
+              name: '[path][name].[ext]',
+            },
           },
         ],
       },
