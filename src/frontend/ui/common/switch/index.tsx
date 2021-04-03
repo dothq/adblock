@@ -9,8 +9,8 @@ export const Switch = ({
 }: {
   state: boolean
   checkedColour: string
-  onChange: any
-}) => {
+  onChange: (state: boolean) => void
+}): JSX.Element => {
   const onSChange = () => {
     onChange(state)
   }

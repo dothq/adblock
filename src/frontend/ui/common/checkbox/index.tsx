@@ -3,7 +3,19 @@ import { useState } from 'react'
 
 import style from './checkbox.module.css'
 
-const Checkbox = ({ children, value = false, onChange = () => {} }) => {
+type CheckboxType = (arg0: {
+  children: JSX.Element
+  value?: boolean
+  onChange?: () => void
+}) => JSX.Element
+
+const Checkbox: CheckboxType = ({
+  children,
+  value = false,
+  onChange = () => {
+    return
+  },
+}): JSX.Element => {
   const [contextMenu, setContextMenu] = useState(false)
 
   return (

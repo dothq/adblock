@@ -8,13 +8,14 @@ import { Button, Checkbox } from '../common'
 import styles from './settings.module.css'
 
 interface AppState {
-  settings?: any
+  settings?: SettingsStorage
+  hasChanged: boolean
 }
 
-class SettingsApp extends Component<AppState> {
-  state: AppState = {}
+class SettingsApp extends Component {
+  state: AppState = { hasChanged: false }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.fetchSettings()
   }
 
@@ -23,24 +24,21 @@ class SettingsApp extends Component<AppState> {
    *
    * @memberof SettingsApp
    */
-  async fetchSettings() {
+  async fetchSettings(): Promise<void> {
     let settings = (await browser.storage.local.get('settings')).settings || {}
 
     // Check if settings exists
     if (JSON.stringify(settings) == '{}') {
-      console.log('Setting settings to default')
       settings = DEFAULT_SETTINGS
       await browser.storage.local.remove('settings')
       await browser.storage.local.set({ settings })
     }
 
-    console.log(JSON.stringify(settings))
-
-    this.setState({ settings })
+    this.setState({ hasChanged: this.state.hasChanged, settings })
   }
 
-  render() {
-    let settings: SettingsStorage = this.state.settings
+  render(): JSX.Element {
+    const settings: SettingsStorage = this.state.settings
 
     return (
       <div className={styles.page}>
@@ -49,42 +47,42 @@ class SettingsApp extends Component<AppState> {
         {settings && (
           <>
             <h2>Filter lists</h2>
-            <div>
+            <div style={{ marginBottom: 16 }}>
               <Checkbox
                 value={settings.lists.fakeNews}
                 onChange={() => {
                   settings.lists.fakeNews = !settings.lists.fakeNews
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
-                Fake news filter list
+                <>Fake news filter list</>
               </Checkbox>
               <Checkbox
                 value={settings.lists.gambling}
                 onChange={() => {
                   settings.lists.gambling = !settings.lists.gambling
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
-                Gambling filter list
+                <>Gambling filter list</>
               </Checkbox>
               <Checkbox
                 value={settings.lists.social}
                 onChange={() => {
                   settings.lists.social = !settings.lists.social
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
-                Social media filter list
+                <>Social media filter list</>
               </Checkbox>
               <Checkbox
                 value={settings.lists.ipGrabbers}
                 onChange={() => {
                   settings.lists.ipGrabbers = !settings.lists.ipGrabbers
-                  this.setState({ settings })
+                  this.setState({ hasChanged: true, settings })
                 }}
               >
-                IP Grabbers filter list
+                <>IP Grabbers filter list</>
               </Checkbox>
             </div>
 
@@ -93,9 +91,11 @@ class SettingsApp extends Component<AppState> {
                 await browser.storage.local.remove('settings')
                 await browser.storage.local.set({ settings })
                 await remoteFn('reloadBackend')
+                this.setState({ ...this.state, hasChanged: false })
               }}
+              disabled={!this.state.hasChanged}
             >
-              Save Settings
+              <>Save Settings</>
             </Button>
           </>
         )}

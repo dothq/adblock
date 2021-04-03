@@ -17,10 +17,11 @@ const ctx = (document.getElementById(
 const totalBlockedEl = document.getElementById('totalBlocked')
 
 ;(async () => {
-  const payload = await remoteFn('getLongTermStats')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payload = (await remoteFn('getLongTermStats')) as any
 
-  let data = []
-  let labels = []
+  const data = []
+  const labels = []
   let totalBlocked = 0
 
   for (const key in payload) {
@@ -33,9 +34,7 @@ const totalBlockedEl = document.getElementById('totalBlocked')
 
   totalBlockedEl.innerText = totalBlocked.toString()
 
-  console.log(data)
-
-  const myChart = new Chart(ctx, {
+  new Chart(ctx, {
     type: 'line',
     data: {
       labels,

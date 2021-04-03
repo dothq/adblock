@@ -4,17 +4,17 @@ import tempPort from '../tempPort'
 
 type CallFunctionData = {
   name: string
-  payload?: any
+  payload?: unknown
   id: string
 }
 type FunctionReturnData = {
-  payload: any
+  payload: unknown
   id: string
 }
 
-let functions = {}
+const functions = {}
 
-export const initFn = () =>
+export const initFn = (): void =>
   tempPort('co.dothq.shield.fn', (p) =>
     p.onMessage.addListener(async (msg: CallFunctionData) => {
       if (typeof functions[msg.name] === 'undefined') {
@@ -30,7 +30,7 @@ export const initFn = () =>
     })
   )
 
-export const remoteFn = (name: string, payload?: any): Promise<any> => {
+export const remoteFn = (name: string, payload?: unknown): Promise<unknown> => {
   const id = uuidv4()
 
   const backend = browser.runtime.connect({
@@ -53,7 +53,7 @@ export const remoteFn = (name: string, payload?: any): Promise<any> => {
 
 export const defineFn = (
   name: string,
-  callback: (payload: any) => Promise<any>
-) => {
+  callback: (payload: unknown) => Promise<unknown>
+): void => {
   functions[name] = callback
 }

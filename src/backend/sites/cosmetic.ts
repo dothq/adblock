@@ -11,16 +11,15 @@ const url = window.location.href
 const hostname = window.location.hostname
 const domain = getDomain(url)
 
-console.log('Cosmetics')
 ;(async () => {
-  const whitelist = await remoteFn('getWhitelist')
+  const whitelist = (await remoteFn('getWhitelist')) as string[]
   if (whitelist.includes(domain)) return
 
-  const payload = await remoteFn('getCosmeticsFilters', {
+  const payload = (await remoteFn('getCosmeticsFilters', {
     url,
     hostname,
     domain,
-  })
+  })) as { active: boolean; styles: string }
 
   if (payload.active) {
     if (payload.styles) {
@@ -32,6 +31,4 @@ console.log('Cosmetics')
       document.head.append(style)
     }
   }
-
-  console.log('Cosmetics added')
 })()

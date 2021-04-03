@@ -1,4 +1,4 @@
-export const hexHSL = (hex: string) => {
+export const hexHSL = (hex: string): { h: number; s: number; l: number } => {
   const rgb = hexToRGB(hex)
   return rgbToHSL(rgb.r, rgb.g, rgb.b)
 }
@@ -13,17 +13,18 @@ const hexToRGB = (hex: string) => {
 
 const rgbToHSL = (r: number, g: number, b: number) => {
   ;(r /= 255), (g /= 255), (b /= 255)
-  const max = Math.max(r, g, b),
-    min = Math.min(r, g, b)
-  let h: number,
-    s: number,
-    l = (max + min) / 2
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+
+  let h: number, s: number
 
   if (max == min) {
     h = s = 0 // achromatic
   } else {
     const d = max - min
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
     switch (max) {
       case r:
         h = (g - b) / d + (g < b ? 6 : 0)
@@ -35,6 +36,7 @@ const rgbToHSL = (r: number, g: number, b: number) => {
         h = (r - g) / d + 4
         break
     }
+
     h /= 6
   }
 

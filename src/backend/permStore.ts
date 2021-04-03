@@ -11,24 +11,25 @@ export class PermStore<DataType> {
     this.loadingPromise = this.loadData(defaultData)
   }
 
-  protected async loadData(defaultData: DataType) {
+  protected async loadData(defaultData: DataType): Promise<void> {
     const localStorage = await browser.storage.local.get()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = localStorage[this.key]
 
     this.memData = (data as DataType) || defaultData
   }
 
-  async storeData() {
+  async storeData(): Promise<void> {
     const storageQuery = {}
     storageQuery[this.key] = this.data
     await browser.storage.local.set(storageQuery)
   }
 
-  async load() {
+  async load(): Promise<void> {
     await this.loadingPromise
   }
 
-  get data() {
+  get data(): DataType {
     return this.memData
   }
 
