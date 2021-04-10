@@ -1,5 +1,8 @@
 import React from 'react'
 import { ArrowRight, Check, Loader, Settings } from 'react-feather'
+import ContrastColor from 'contrast-color'
+import convert from 'color-convert'
+
 import { BackendState } from '../../../constants/state'
 import { Switch, Button, Favicon } from '../common'
 import { hexHSL } from './contrast'
@@ -14,18 +17,40 @@ type Props = {
 
 type Component = (arg0: Props) => JSX.Element
 
-export const App: Component = ({ state, toggleWhitelist }) => {
-  const themeTextColor = getComputedStyle(
-    document.documentElement
-  ).getPropertyValue('--color')
+const rgbaToRgb = (rgba: string) => {
+  if (rgba.includes('rgb')) {
+    const clean = rgba.replace('rgba(', '').replace(')', '')
+    const asArray = clean.split(',').map((x) => parseInt(x))
+    if (asArray.length == 4) {
+      asArray.pop()
+    }
+    return `#${convert.rgb.hex(asArray as any)}`
+  }
 
-  const textColor = state.whitelisted
-    ? themeTextColor
-    : state.color.includes('#')
-    ? hexHSL(state.color).l < 0.56
-      ? '#fff'
-      : '#000'
-    : 'white'
+  return rgba
+}
+
+export const App: Component = ({ state, toggleWhitelist }) => {
+  const accentDisabledColor = getComputedStyle(
+    document.documentElement
+  ).getPropertyValue('--background-color-secondary')
+
+  const contrastManager = new ContrastColor({
+    bgColor: rgbaToRgb(state.color || 'white'),
+    fgDarkColor: 'black',
+    fgLightColor: 'white',
+    defaultColor: 'red',
+    threshold: 130,
+  })
+
+  const textColor = contrastManager.contrastColor({
+    bgColor: state.whitelisted
+      ? accentDisabledColor
+      : rgbaToRgb(state.color || 'white'),
+  })
+
+  console.log(textColor)
+  console.log(rgbaToRgb(state.color || 'white'))
 
   return (
     <div className={styles.container}>
@@ -33,13 +58,14 @@ export const App: Component = ({ state, toggleWhitelist }) => {
         className={`${styles.accent} ${
           state.whitelisted ? styles.accentDisabled : ''
         }`}
-        style={{ backgroundColor: state.color }}
+        style={{ backgroundColor: rgbaToRgb(state.color || 'white') }}
       >
         <div className={styles.itemBar}>
           <div style={{ justifyContent: 'flex-start' }}>
             <Switch
               state={!state.whitelisted}
-              checkedColour={state.color}
+              checkedColour={rgbaToRgb(state.color || 'white')}
+              backgroundColor={textColor}
               onChange={() => toggleWhitelist()}
             />
           </div>
