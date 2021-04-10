@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [0.1.0pre6]
+
 ### Added
 
 - 💬 List for ip grabbers
@@ -57,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Blocking enabled for tracking sites
 
 [unreleased]: https://github.com/dothq-extensions/adblock/compare/v0.1.0pre4...HEAD
+[0.1.0pre6]: https://github.com/dothq-extensions/adblock/releases/tag/v0.1.0pre6
 [0.1.0pre4]: https://github.com/dothq-extensions/adblock/releases/tag/v0.1.0pre4
 [0.1.0pre3]: https://github.com/dothq-extensions/adblock/releases/tag/v0.1.0pre3
 [0.1.0.a2]: https://github.com/dothq-extensions/adblock/releases/tag/v0.1.0.a2
