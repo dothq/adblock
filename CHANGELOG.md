@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Fixed
+
+- 🐛 Fix contrast issues between background and text in popup
+
 ## [0.1.0pre6]
 
 ### Added
