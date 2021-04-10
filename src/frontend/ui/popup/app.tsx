@@ -49,9 +49,6 @@ export const App: Component = ({ state, toggleWhitelist }) => {
       : rgbaToRgb(state.color || 'white'),
   })
 
-  console.log(textColor)
-  console.log(rgbaToRgb(state.color || 'white'))
-
   return (
     <div className={styles.container}>
       <main
