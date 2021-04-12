@@ -21,6 +21,7 @@ export type AppState = {
   color: string
   backgroundState: BackendState
   totalBlocked: number
+  hasPermissions: boolean
 }
 
 export class State extends Component {
@@ -31,6 +32,7 @@ export class State extends Component {
     favicon: defaultFavicon,
     color: 'rgba(0,0,0,0)', // This creates a fade in with the color
     backgroundState: BackendState.Idle,
+    hasPermissions: true,
   }
 
   componentDidMount(): void {

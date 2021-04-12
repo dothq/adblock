@@ -19,7 +19,7 @@
 .switchCircle {
   width: 12px;
   height: 12px;
-  background-color: #cacccf;
+  background-color: #7e7e7e;
   transform: translateX(4px);
   border-radius: 12px;
   transition: 0.15s transform ease, 0.15s background-color;
