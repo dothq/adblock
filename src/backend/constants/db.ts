@@ -1,5 +1,5 @@
 export const SHIELD_DB_ADS_AND_TRACKERS =
-  'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/trackers.txt'
+  'https://easylist.to/easylist/easylist.txt'
 
 export const SHIELD_DB_FAKE_NEWS =
   'https://raw.githubusercontent.com/dothq-extensions/shield-db/main/out/fake_news.txt'

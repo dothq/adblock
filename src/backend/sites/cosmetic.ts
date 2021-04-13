@@ -15,20 +15,33 @@ const domain = getDomain(url)
   const whitelist = (await remoteFn('getWhitelist')) as string[]
   if (whitelist.includes(domain)) return
 
-  const payload = (await remoteFn('getCosmeticsFilters', {
+  const sharedConfig = {
     url,
     hostname,
     domain,
-  })) as { active: boolean; styles: string }
-
-  if (payload.active) {
-    if (payload.styles) {
-      // Create a style element to be appended to the head of the webpage
-      const style = document.createElement('style')
-      // Add the stylesheet sent to us to it (this has to be done as a textNode)
-      style.append(document.createTextNode(payload.styles))
-      // Append the style to the head
-      document.head.append(style)
-    }
   }
+
+  remoteFn('getGlobalCosmetics').then((globalCosmetics: string) => {
+    // Create a style element to be appended to the head of the webpage
+    const style = document.createElement('style')
+    // Add the stylesheet sent to us to it (this has to be done as a textNode)
+    style.append(document.createTextNode(globalCosmetics))
+    // Append the style to the head
+    document.body.append(style)
+  })
+
+  remoteFn('getCosmeticsFilters', sharedConfig).then(
+    (cosmetics: { active: boolean; styles: string }) => {
+      if (cosmetics.active) {
+        if (cosmetics.styles) {
+          // Create a style element to be appended to the head of the webpage
+          const style = document.createElement('style')
+          // Add the stylesheet sent to us to it (this has to be done as a textNode)
+          style.append(document.createTextNode(cosmetics.styles))
+          // Append the style to the head
+          document.body.append(style)
+        }
+      }
+    }
+  )
 })()
