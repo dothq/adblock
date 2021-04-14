@@ -58,16 +58,32 @@ const createEngine: () => Promise<Uint8Array> = () =>
  * @param details The request info, provided by the requestHandler
  */
 const requestHandler = (details: RequestListenerArgs) => {
+  // Optional redirect parameter
+  let redirect: string
+
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
 
   // Check if the condition is in the blocklist
-  const { match } = engine.match(Request.fromRawDetails(details))
+  const out = engine.match(Request.fromRawDetails(details))
+  const { match } = out
+
   // Block it if it is
   if (!match) return
 
-  const domain = getDomain(details.originUrl)
-  if (whitelist.data.indexOf(domain) !== -1) return
+  if (details.originUrl) {
+    // Whitelist checking should only run using origin url if there is an origin url
+    const domain = getDomain(details.originUrl)
+    if (whitelist.data.indexOf(domain) !== -1) return
+  } else {
+    // Otherwise it should use a regular URL
+    const domain = getDomain(details.url)
+    if (whitelist.data.indexOf(domain) !== -1) return
+
+    // If it hasn't returned, this is a webpage that has been navigated to by the
+    // user and we should show a blocked screen
+    redirect = browser.runtime.getURL('blocked.html')
+  }
 
   // Record that this specific ad was seen on this tab
   // Check if the tab has been recorded
@@ -87,7 +103,11 @@ const requestHandler = (details: RequestListenerArgs) => {
   ltBlocked.data[currentDate]++
   ltBlocked.storeData()
 
-  return { cancel: true }
+  if (redirect) {
+    return { redirectUrl: redirect }
+  } else {
+    return { cancel: true }
+  }
 }
 
 /**
@@ -121,8 +141,6 @@ const init = async () => {
   globalCosmetics = createStylesheetFromRules(domainless)
     .replace('\r', '\n')
     .replace('\n', '')
-
-  console.log(globalCosmetics)
 
   timeEnd('Get domainless rules')
   // Set state to idle
