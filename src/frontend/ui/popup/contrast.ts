@@ -1,44 +1,41 @@
-export const hexHSL = (hex: string): { h: number; s: number; l: number } => {
-  const rgb = hexToRGB(hex)
-  return rgbToHSL(rgb.r, rgb.g, rgb.b)
-}
+import { rgb } from 'color-convert'
+import { RGB } from 'color-convert/conversions'
+import ContrastColor from 'contrast-color'
 
-const hexToRGB = (hex: string) => {
-  return {
-    r: parseInt(hex.substr(1, 2), 16),
-    g: parseInt(hex.substr(3, 2), 16),
-    b: parseInt(hex.substr(5, 2), 16),
-  }
-}
+// =============================================================================
+// Conversion stuff
 
-const rgbToHSL = (r: number, g: number, b: number) => {
-  ;(r /= 255), (g /= 255), (b /= 255)
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const l = (max + min) / 2
-
-  let h: number, s: number
-
-  if (max == min) {
-    h = s = 0 // achromatic
-  } else {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0)
-        break
-      case g:
-        h = (b - r) / d + 2
-        break
-      case b:
-        h = (r - g) / d + 4
-        break
+export const rgbaToHex = (rgba: string): string => {
+  if (rgba.includes('rgb')) {
+    const clean = rgba.replace('rgb(', '').replace('rgba(', '').replace(')', '')
+    const asArray = clean.split(',').map((x) => parseInt(x))
+    if (asArray.length == 4) {
+      asArray.pop()
     }
-
-    h /= 6
+    return `#${rgb.hex(asArray as RGB)}`.toLowerCase()
   }
 
-  return { h, s, l }
+  return rgba
 }
+
+// =============================================================================
+// Contrast logic
+
+const contrastManager = new ContrastColor({
+  bgColor: rgbaToHex('white'),
+  fgDarkColor: 'black',
+  fgLightColor: 'white',
+  defaultColor: 'red',
+  threshold: 130,
+})
+
+export const getContrast = (bg: string) =>
+  contrastManager.contrastColor({ bgColor: rgbaToHex(bg) })
+
+const accentDisabledColor =
+  getComputedStyle(document.documentElement).getPropertyValue(
+    '--background-color-secondary'
+  ) || '#fbfbfb'
+
+export const getAppContrast = (whitelisted: boolean, stateColor: string) =>
+  getContrast(whitelisted ? accentDisabledColor : stateColor)

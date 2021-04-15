@@ -10,6 +10,8 @@ import { RequestListenerArgs } from './types'
 import { defineFn, initFn } from './lib/remoteFunctions'
 import { BackendState } from '../constants/state'
 import { timeEnd, timeStart } from './lib/logger'
+import { createStylesheetFromRules } from './lib/cosmeticFuncs'
+
 // let wasm = require('./rust/pkg')
 
 // Load the engineCreator webworker
@@ -27,6 +29,7 @@ const ltBlocked = new PermStore('longTermBlockList', {})
 // ===============
 // Blocking engine
 let engine: FiltersEngine
+let globalCosmetics: string
 
 // =================
 // Blocking related variable
@@ -55,18 +58,32 @@ const createEngine: () => Promise<Uint8Array> = () =>
  * @param details The request info, provided by the requestHandler
  */
 const requestHandler = (details: RequestListenerArgs) => {
+  // Optional redirect parameter
+  let redirect: string
+
   // Check if the site is contained in the whitelist
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
 
   // Check if the condition is in the blocklist
-  const { match } = engine.match(Request.fromRawDetails(details))
+  const out = engine.match(Request.fromRawDetails(details))
+  const { match } = out
+
   // Block it if it is
   if (!match) return
 
-  const domain = getDomain(details.originUrl)
-  if (whitelist.data.indexOf(domain) !== -1) return
+  if (details.originUrl) {
+    // Whitelist checking should only run using origin url if there is an origin url
+    const domain = getDomain(details.originUrl)
+    if (whitelist.data.indexOf(domain) !== -1) return
+  } else {
+    // Otherwise it should use a regular URL
+    const domain = getDomain(details.url)
+    if (whitelist.data.indexOf(domain) !== -1) return
 
-  // TODO [#13]: Move data collection to rust
+    // If it hasn't returned, this is a webpage that has been navigated to by the
+    // user and we should show a blocked screen
+    redirect = browser.runtime.getURL('blocked.html')
+  }
 
   // Record that this specific ad was seen on this tab
   // Check if the tab has been recorded
@@ -86,7 +103,11 @@ const requestHandler = (details: RequestListenerArgs) => {
   ltBlocked.data[currentDate]++
   ltBlocked.storeData()
 
-  return { cancel: true }
+  if (redirect) {
+    return { redirectUrl: redirect }
+  } else {
+    return { cancel: true }
+  }
 }
 
 /**
@@ -110,6 +131,18 @@ const init = async () => {
     ['blocking']
   )
 
+  timeStart('Get domainless rules')
+
+  const domainless = engine.cosmetics
+    .getFilters()
+    .filter(({ domains }) => typeof domains === 'undefined')
+    .filter(({ selector }) => typeof selector === 'string')
+
+  globalCosmetics = createStylesheetFromRules(domainless)
+    .replace('\r', '\n')
+    .replace('\n', '')
+
+  timeEnd('Get domainless rules')
   // Set state to idle
   state = BackendState.Idle
 }
@@ -156,13 +189,19 @@ defineFn('getLongTermStats', async () => ltBlocked.data)
 
 // Define a function for getting cosmetic filters for each site
 defineFn('getCosmeticsFilters', async (payload) => {
-  // Wait for the engine to spawn
-  while (typeof engine === 'undefined') {
-    await sleep(100)
-  }
+  // Wait for the engine to spawn, then grab the cosmetics filters
+  return (
+    // Get the site specific cosmetics
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (await waitForEngine()).cosmetics.getCosmeticsFilters(payload as any)
+  )
+})
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return engine.getCosmeticsFilters(payload as any)
+// Defines a function to collet the base stylesheet from the engine to be applied
+// to a website on a separate thread.
+defineFn('getGlobalCosmetics', async () => {
+  // Wait for the global cosmetics to be generated
+  return await waitForDynamic(() => globalCosmetics)
 })
 
 // Function for getting the current state
@@ -181,7 +220,9 @@ defineFn('getAllTrackersBlocked', async () => {
   return totalBlocked
 })
 
-// Start listening for function calls
+// Start listening for function calls defined by defineFn. Note that these function
+// calls are intended to be used from a separate thread, hence why they are
+// more complicated to define
 initFn()
 
 // Code to clean up the adsOnTabs variable. This will discard tabs that have been
@@ -208,3 +249,26 @@ browser.webNavigation.onBeforeNavigate.addListener(tabUpdated)
   // Call the init function, so the blocker starts by default
   init()
 })()
+
+// =============================================================================
+// Util functions
+
+async function waitForDynamic<DynamicType>(
+  fn: () => DynamicType | undefined
+): Promise<DynamicType> {
+  // Wait for the dynamic to stop being undefined
+  while (typeof fn() === 'undefined') {
+    await sleep(100)
+  }
+
+  // Return dynamic for convenience
+  return fn()
+}
+
+/**
+ * Waits for the engine to start then returns
+ */
+const waitForEngine = async () => {
+  // Wait for the engine to spawn
+  return await waitForDynamic(() => engine)
+}

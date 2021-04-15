@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - 🐛 Fix contrast issues between background and text in popup
+- 🐛 Load cosmetics that do not have a domain assigned to them
 
 ## [0.1.0pre6]
 

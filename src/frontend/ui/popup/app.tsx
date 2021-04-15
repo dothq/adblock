@@ -1,13 +1,14 @@
 import React from 'react'
 import { ArrowRight, Check, Loader, Settings } from 'react-feather'
-import ContrastColor from 'contrast-color'
-import convert from 'color-convert'
 
 import { BackendState } from '../../../constants/state'
 import { Switch, Button, Favicon } from '../common'
-import { hexHSL } from './contrast'
 import { AppState } from './state'
 import styles from './style.module.css'
+import { getAppContrast, rgbaToHex } from './contrast'
+
+// =============================================================================
+// Component types
 
 type Props = {
   state: AppState
@@ -17,37 +18,11 @@ type Props = {
 
 type Component = (arg0: Props) => JSX.Element
 
-const rgbaToRgb = (rgba: string) => {
-  if (rgba.includes('rgb')) {
-    const clean = rgba.replace('rgba(', '').replace(')', '')
-    const asArray = clean.split(',').map((x) => parseInt(x))
-    if (asArray.length == 4) {
-      asArray.pop()
-    }
-    return `#${convert.rgb.hex(asArray as any)}`
-  }
-
-  return rgba
-}
+// =============================================================================
+// Component
 
 export const App: Component = ({ state, toggleWhitelist }) => {
-  const accentDisabledColor = getComputedStyle(
-    document.documentElement
-  ).getPropertyValue('--background-color-secondary')
-
-  const contrastManager = new ContrastColor({
-    bgColor: rgbaToRgb(state.color || 'white'),
-    fgDarkColor: 'black',
-    fgLightColor: 'white',
-    defaultColor: 'red',
-    threshold: 130,
-  })
-
-  const textColor = contrastManager.contrastColor({
-    bgColor: state.whitelisted
-      ? accentDisabledColor
-      : rgbaToRgb(state.color || 'white'),
-  })
+  const textColor = getAppContrast(state.whitelisted, state.color)
 
   return (
     <div className={styles.container}>
@@ -55,13 +30,13 @@ export const App: Component = ({ state, toggleWhitelist }) => {
         className={`${styles.accent} ${
           state.whitelisted ? styles.accentDisabled : ''
         }`}
-        style={{ backgroundColor: rgbaToRgb(state.color || 'white') }}
+        style={{ backgroundColor: rgbaToHex(state.color || 'white') }}
       >
         <div className={styles.itemBar}>
           <div style={{ justifyContent: 'flex-start' }}>
             <Switch
               state={!state.whitelisted}
-              checkedColour={rgbaToRgb(state.color || 'white')}
+              checkedColour={rgbaToHex(state.color || 'white')}
               backgroundColor={textColor}
               onChange={() => toggleWhitelist()}
             />
@@ -150,4 +125,7 @@ export const App: Component = ({ state, toggleWhitelist }) => {
       </div>
     </div>
   )
+}
+function getAppContrast(whitelisted: boolean, color: string) {
+  throw new Error('Function not implemented.')
 }
