@@ -5,17 +5,7 @@ import { BackendState } from '../../../constants/state'
 import { Switch, Button, Favicon } from '../common'
 import { AppState } from './state'
 import styles from './style.module.css'
-import { getContrast, rgbaToHex } from './contrast'
-
-// =============================================================================
-// Some extra contrast utils
-
-const accentDisabledColor = getComputedStyle(
-  document.documentElement
-).getPropertyValue('--background-color-secondary')
-
-const getAppContrast = (whitelisted: boolean, stateColor: string) =>
-  getContrast(whitelisted ? accentDisabledColor : stateColor)
+import { getAppContrast, rgbaToHex } from './contrast'
 
 // =============================================================================
 // Component types
@@ -135,4 +125,7 @@ export const App: Component = ({ state, toggleWhitelist }) => {
       </div>
     </div>
   )
+}
+function getAppContrast(whitelisted: boolean, color: string) {
+  throw new Error('Function not implemented.')
 }

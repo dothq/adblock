@@ -7,12 +7,12 @@ import ContrastColor from 'contrast-color'
 
 export const rgbaToHex = (rgba: string): string => {
   if (rgba.includes('rgb')) {
-    const clean = rgba.replace('rgba(', '').replace(')', '')
+    const clean = rgba.replace('rgb(', '').replace('rgba(', '').replace(')', '')
     const asArray = clean.split(',').map((x) => parseInt(x))
     if (asArray.length == 4) {
       asArray.pop()
     }
-    return `#${rgb.hex(asArray as RGB)}`
+    return `#${rgb.hex(asArray as RGB)}`.toLowerCase()
   }
 
   return rgba
@@ -31,3 +31,11 @@ const contrastManager = new ContrastColor({
 
 export const getContrast = (bg: string) =>
   contrastManager.contrastColor({ bgColor: rgbaToHex(bg) })
+
+const accentDisabledColor =
+  getComputedStyle(document.documentElement).getPropertyValue(
+    '--background-color-secondary'
+  ) || '#fbfbfb'
+
+export const getAppContrast = (whitelisted: boolean, stateColor: string) =>
+  getContrast(whitelisted ? accentDisabledColor : stateColor)

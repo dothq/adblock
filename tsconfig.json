@@ -10,7 +10,7 @@
     "outDir": "dist/js",
     "noEmitOnError": true,
     "typeRoots": ["node_modules/@types", "node_modules/web-ext-types"],
-    "types": ["node"],
+    "types": ["jest", "node"],
     "jsx": "react-jsx"
   }
 }
