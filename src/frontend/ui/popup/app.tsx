@@ -126,6 +126,3 @@ export const App: Component = ({ state, toggleWhitelist }) => {
     </div>
   )
 }
-function getAppContrast(whitelisted: boolean, color: string) {
-  throw new Error('Function not implemented.')
-}
