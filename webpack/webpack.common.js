@@ -17,6 +17,7 @@ module.exports = {
     background: path.join(__dirname, `${srcDir}/backend/background.ts`),
     yt: path.join(__dirname, `${srcDir}/backend/sites/youtube.ts`),
     cosmetics: path.join(__dirname, `${srcDir}/backend/sites/cosmetic.ts`),
+    blocked: path.join(__dirname, `${srcDir}/frontend/ui/blocked/blocked.ts`),
   },
 
   output: {
@@ -105,9 +106,9 @@ module.exports = {
     }),
 
     // Rust stuff
-    new WasmPackPlugin({
-      crateDirectory: path.join(__dirname, srcDir, 'backend', 'rust'),
-    }),
+    // new WasmPackPlugin({
+    //   crateDirectory: path.join(__dirname, srcDir, 'backend', 'rust'),
+    // }),
 
     // Nice clean progress bar for webpack
     new WebpackBar(),

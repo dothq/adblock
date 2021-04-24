@@ -8,27 +8,34 @@ import {
   SHIELD_DB_IP_GRABBER,
 } from './constants/db'
 
+async function createEngine(name, list) {
+  return {
+    name,
+    engine: await FiltersEngine.fromLists(fetch, [list])
+  }
+}
+
 onmessage = async (settings) => {
-  // Create what lists should be loaded
-  const lists = [SHIELD_DB_ADS_AND_TRACKERS]
+  const engines = []
+
+  engines.push(await createEngine('Common', SHIELD_DB_ADS_AND_TRACKERS))
 
   // Add each list if selected
   if (settings.data.lists.fakeNews) {
-    lists.push(SHIELD_DB_FAKE_NEWS)
+    engines.push(await createEngine('Fake news', SHIELD_DB_FAKE_NEWS))
   }
   if (settings.data.lists.gambling) {
-    lists.push(SHIELD_DB_GAMBLING)
+    engines.push(await createEngine('Gambling', SHIELD_DB_GAMBLING))
+    
   }
   if (settings.data.lists.social) {
-    lists.push(SHIELD_DB_SOCIAL)
+    engines.push(await createEngine('Social', SHIELD_DB_SOCIAL))
+    
   }
   if (settings.data.lists.ipGrabber) {
-    lists.push(SHIELD_DB_IP_GRABBER)
+    engines.push(await createEngine('IP Grabbers', SHIELD_DB_IP_GRABBER))
   }
 
-  // Create a filter list using the cliqz filter engine
-  const engine = await FiltersEngine.fromLists(fetch, lists)
-
   // Serialize the engine and send it back
-  self.postMessage(engine.serialize())
+  postMessage(engines.map(engine => ({ name: engine.name, engine: engine.engine.serialize() })))
 }

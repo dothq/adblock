@@ -28,7 +28,7 @@ const ltBlocked = new PermStore('longTermBlockList', {})
 
 // ===============
 // Blocking engine
-let engine: FiltersEngine
+let engines: { name: string; engine: FiltersEngine }[]
 let globalCosmetics: string
 
 // =================
@@ -44,12 +44,15 @@ let state = BackendState.Loading
 const getDomain = (url: string) =>
   parse(url.replace('https://', '').replace('http://', '').split('/')[0]).domain
 
-const createEngine: () => Promise<Uint8Array> = () =>
+const createEngine: () => Promise<
+  { name: string; engine: Uint8Array }[]
+> = () =>
   // eslint-disable-next-line no-async-promise-executor
   new Promise(async (resolve) => {
     await settings.checkLoad()
 
-    engineCreator.onmessage = (engine) => resolve(engine.data as Uint8Array)
+    engineCreator.onmessage = (engine) =>
+      resolve(engine.data as { name: string; engine: Uint8Array }[])
     engineCreator.postMessage(settings.data)
   })
 
@@ -65,24 +68,40 @@ const requestHandler = (details: RequestListenerArgs) => {
   // FIXME: URLS from a remote with a different url but are still from this tab are blocked
 
   // Check if the condition is in the blocklist
-  const out = engine.match(Request.fromRawDetails(details))
-  const { match } = out
+  let hasMatch = false
+  let engineMatch = ''
 
-  // Block it if it is
-  if (!match) return
+  const request = Request.fromRawDetails(details)
+  for (let i = 0; i < engines.length; i++) {
+    const { match } = engines[i].engine.match(request)
 
-  if (details.originUrl) {
+    if (match) {
+      engineMatch = engines[i].name
+      hasMatch = true
+    }
+  }
+
+  // Return if it hasn't got a match
+  if (!hasMatch) return
+
+  // console.log(details)
+  if (details.type !== 'main_frame') {
     // Whitelist checking should only run using origin url if there is an origin url
     const domain = getDomain(details.originUrl)
     if (whitelist.data.indexOf(domain) !== -1) return
   } else {
     // Otherwise it should use a regular URL
     const domain = getDomain(details.url)
+    console.log(domain)
+    console.log(whitelist.data)
+    console.log(whitelist.data.indexOf(domain))
     if (whitelist.data.indexOf(domain) !== -1) return
 
     // If it hasn't returned, this is a webpage that has been navigated to by the
     // user and we should show a blocked screen
-    redirect = browser.runtime.getURL('blocked.html')
+    redirect = `${browser.runtime.getURL('blocked.html')}?url=${
+      details.url
+    }&list=${engineMatch}`
   }
 
   // Record that this specific ad was seen on this tab
@@ -122,7 +141,12 @@ const init = async () => {
   await settings.load()
 
   timeStart('Engine loaded')
-  engine = FiltersEngine.deserialize(await createEngine())
+  const serializeEngine = await createEngine()
+
+  engines = serializeEngine.map((engine) => ({
+    name: engine.name,
+    engine: FiltersEngine.deserialize(engine.engine),
+  }))
   timeEnd('Engine loaded')
 
   browser.webRequest.onBeforeRequest.addListener(
@@ -133,10 +157,18 @@ const init = async () => {
 
   timeStart('Get domainless rules')
 
-  const domainless = engine.cosmetics
-    .getFilters()
-    .filter(({ domains }) => typeof domains === 'undefined')
-    .filter(({ selector }) => typeof selector === 'string')
+  let domainless = []
+
+  for (let i = 0; i < engines.length; i++) {
+    const engine = engines[i].engine
+
+    const domainlessLocal = engine.cosmetics
+      .getFilters()
+      .filter(({ domains }) => typeof domains === 'undefined')
+      .filter(({ selector }) => typeof selector === 'string')
+
+    domainless = [...domainless, ...domainlessLocal]
+  }
 
   globalCosmetics = createStylesheetFromRules(domainless)
     .replace('\r', '\n')
@@ -167,6 +199,7 @@ defineFn('removeFromWhitelist', async (site: string) => {
 // Adds an entry to the whitelist. Used by the popup
 defineFn('addToWhitelist', async (site: string) => {
   whitelist.data.push(site)
+  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -189,12 +222,21 @@ defineFn('getLongTermStats', async () => ltBlocked.data)
 
 // Define a function for getting cosmetic filters for each site
 defineFn('getCosmeticsFilters', async (payload) => {
-  // Wait for the engine to spawn, then grab the cosmetics filters
-  return (
-    // Get the site specific cosmetics
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (await waitForEngine()).cosmetics.getCosmeticsFilters(payload as any)
+  // Wait for the engine to spawn
+  const definedEngies = await waitForEngine()
+
+  // Create a variable to store the cosmetics filters in
+  let cosmetics = ''
+
+  // Loop through the engines and add the cosmetics
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  definedEngies.forEach(
+    (engine) =>
+      (cosmetics += engine.engine.cosmetics.getCosmeticsFilters(payload as any))
   )
+
+  // Lets return the final cosmetics
+  return cosmetics
 })
 
 // Defines a function to collet the base stylesheet from the engine to be applied
@@ -270,5 +312,5 @@ async function waitForDynamic<DynamicType>(
  */
 const waitForEngine = async () => {
   // Wait for the engine to spawn
-  return await waitForDynamic(() => engine)
+  return await waitForDynamic(() => engines)
 }
