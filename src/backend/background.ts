@@ -140,6 +140,9 @@ const init = async () => {
   await whitelist.load()
   await settings.load()
 
+  // Disable if enabled isn't set properly
+  if (!settings.data.enabled) return
+
   timeStart('Engine loaded')
   const serializeEngine = await createEngine()
 

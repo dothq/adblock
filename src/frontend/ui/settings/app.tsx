@@ -46,6 +46,18 @@ class SettingsApp extends Component {
 
         {settings && (
           <>
+            <div style={{ marginBottom: 16 }}>
+            <Checkbox
+                value={settings.enabled}
+                onChange={() => {
+                  settings.enabled = !settings.enabled
+                  this.setState({ hasChanged: true, settings })
+                }}
+              >
+                <>Enabled</>
+              </Checkbox>
+            </div>
+
             <h2>Filter lists</h2>
             <div style={{ marginBottom: 16 }}>
               <Checkbox

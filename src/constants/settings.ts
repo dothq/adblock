@@ -1,5 +1,6 @@
 export type SettingsStorage = {
-  version: 1.1
+  version: 1.2
+  enabled: boolean
   lists: {
     common: boolean
     fakeNews: boolean
@@ -10,7 +11,8 @@ export type SettingsStorage = {
 }
 
 export const DEFAULT_SETTINGS: SettingsStorage = {
-  version: 1.1,
+  version: 1.2,
+  enabled: true,
   lists: {
     common: true,
     fakeNews: false,
