@@ -11,7 +11,7 @@ import {
 async function createEngine(name, list) {
   return {
     name,
-    engine: await FiltersEngine.fromLists(fetch, [list])
+    engine: await FiltersEngine.fromLists(fetch, [list]),
   }
 }
 
@@ -26,16 +26,19 @@ onmessage = async (settings) => {
   }
   if (settings.data.lists.gambling) {
     engines.push(await createEngine('Gambling', SHIELD_DB_GAMBLING))
-    
   }
   if (settings.data.lists.social) {
     engines.push(await createEngine('Social', SHIELD_DB_SOCIAL))
-    
   }
   if (settings.data.lists.ipGrabber) {
     engines.push(await createEngine('IP Grabbers', SHIELD_DB_IP_GRABBER))
   }
 
   // Serialize the engine and send it back
-  postMessage(engines.map(engine => ({ name: engine.name, engine: engine.engine.serialize() })))
+  postMessage(
+    engines.map((engine) => ({
+      name: engine.name,
+      engine: engine.engine.serialize(),
+    }))
+  )
 }
