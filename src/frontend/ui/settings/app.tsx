@@ -47,7 +47,7 @@ class SettingsApp extends Component {
         {settings && (
           <>
             <div style={{ marginBottom: 16 }}>
-            <Checkbox
+              <Checkbox
                 value={settings.enabled}
                 onChange={() => {
                   settings.enabled = !settings.enabled
