@@ -1,6 +1,6 @@
 {
   "name": "dot-shield",
-  "version": "0.1.0pre7",
+  "version": "0.1.0pre8",
   "private": true,
   "description": "Dot shield, a fast and efficient adblocker",
   "main": "background.js",
