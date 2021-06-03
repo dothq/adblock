@@ -1,5 +1,5 @@
 export type SettingsStorage = {
-  version: 1.2
+  version: 1.3
   enabled: boolean
   lists: {
     common: boolean
@@ -7,11 +7,13 @@ export type SettingsStorage = {
     gambling: boolean
     social: boolean
     ipGrabbers: boolean
+    annoyances: boolean
+    cleanWeb: boolean
   }
 }
 
 export const DEFAULT_SETTINGS: SettingsStorage = {
-  version: 1.2,
+  version: 1.3,
   enabled: true,
   lists: {
     common: true,
@@ -19,6 +21,8 @@ export const DEFAULT_SETTINGS: SettingsStorage = {
     gambling: false,
     social: false,
     ipGrabbers: false,
+    annoyances: false,
+    cleanWeb: false,
   },
 }
 

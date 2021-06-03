@@ -96,6 +96,24 @@ class SettingsApp extends Component {
               >
                 <>IP Grabbers filter list</>
               </Checkbox>
+              <Checkbox
+                value={settings.lists.annoyances}
+                onChange={() => {
+                  settings.lists.annoyances = !settings.lists.annoyances
+                  this.setState({ hasChanged: true, settings })
+                }}
+              >
+                <>Annoyances</>
+              </Checkbox>
+              <Checkbox
+                value={settings.lists.cleanWeb}
+                onChange={() => {
+                  settings.lists.cleanWeb = !settings.lists.cleanWeb
+                  this.setState({ hasChanged: true, settings })
+                }}
+              >
+                <>Clean web</>
+              </Checkbox>
             </div>
 
             <Button
