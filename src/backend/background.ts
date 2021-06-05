@@ -165,6 +165,12 @@ const init = async () => {
   for (let i = 0; i < engines.length; i++) {
     const engine = engines[i].engine
 
+    console.log(
+      engine.cosmetics
+        .getFilters()
+        .filter(({ selector }) => selector == '.Notice')
+    )
+
     const domainlessLocal = engine.cosmetics
       .getFilters()
       .filter(({ domains }) => typeof domains === 'undefined')
@@ -174,8 +180,6 @@ const init = async () => {
   }
 
   globalCosmetics = createStylesheetFromRules(domainless)
-    .replace('\r', '\n')
-    .replace('\n', '')
 
   timeEnd('Get domainless rules')
   // Set state to idle
@@ -202,7 +206,6 @@ defineFn('removeFromWhitelist', async (site: string) => {
 // Adds an entry to the whitelist. Used by the popup
 defineFn('addToWhitelist', async (site: string) => {
   whitelist.data.push(site)
-  console.log(whitelist.data)
   // The whitelist is sent back to update the UI
   return whitelist.data
 })
@@ -233,10 +236,10 @@ defineFn('getCosmeticsFilters', async (payload) => {
 
   // Loop through the engines and add the cosmetics
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  definedEngies.forEach(
-    (engine) =>
-      (cosmetics += engine.engine.cosmetics.getCosmeticsFilters(payload as any))
-  )
+  definedEngies.forEach((engine) => {
+    cosmetics += engine.engine.cosmetics.getCosmeticsFilters(payload as any)
+      .stylesheet
+  })
 
   // Lets return the final cosmetics
   return cosmetics

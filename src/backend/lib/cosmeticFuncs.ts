@@ -22,7 +22,7 @@ export function createStylesheet(rules: string[], style: string): string {
     return ''
   }
 
-  const maximumNumberOfSelectors = 1024
+  const maximumNumberOfSelectors = 100
   const parts: string[] = []
   const styleStr = ` { ${style} }`
 
