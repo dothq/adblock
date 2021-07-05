@@ -13,7 +13,7 @@ const getDomain = (url: string) =>
   psl.parse(url.replace('https://', '').replace('http://', '').split('/')[0])
     .domain
 
-const DEFAULT_COLOR = '#256ef5'
+const DEFAULT_COLOR = '#222222'
 
 export type AppState = {
   blocked: number
@@ -48,7 +48,9 @@ export class State extends Component {
             ? defaultFavicon
             : tab[0].favIconUrl
         )
-        const color = (await v.getPalette()).Muted.hex || DEFAULT_COLOR
+        const palette = await v.getPalette()
+        const color =
+          palette.Muted?.hex || palette.Vibrant?.hex || DEFAULT_COLOR
 
         this.setState({
           ...this.state,
