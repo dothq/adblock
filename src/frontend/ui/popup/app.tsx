@@ -49,7 +49,7 @@ export const App: Component = ({ state, toggleWhitelist }) => {
           <div style={{ justifyContent: 'flex-end' }}>
             <Settings
               onClick={() => window.open('./settings.html')}
-              style={{ width: '16px', color: textColor }}
+              style={{ width: '16px', color: textColor, float: 'right' }}
             />
           </div>
         </div>

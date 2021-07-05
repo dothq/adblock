@@ -33,6 +33,11 @@ body {
   align-items: center;
 }
 
+.itemBar > div:nth-child(3),
+.itemBar > div:nth-child(1) {
+  width: 32px;
+}
+
 .center {
   position: absolute;
   top: 50%;
