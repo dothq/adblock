@@ -70,15 +70,9 @@
         "italic": false
       }
     ],
-    "cSpell.words": [
-      "blocklist"
-    ]
+    "cSpell.words": ["blocklist"]
   },
   "extensions": {
-    "recommendations": [
-      "aaron-bond.better-comments",
-      "esbenp.prettier-vscode",
-      "tabnine.tabnine-vscode"
-    ]
+    "recommendations": ["aaron-bond.better-comments", "esbenp.prettier-vscode"]
   }
 }

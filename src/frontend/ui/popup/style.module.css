@@ -1,6 +1,7 @@
 body {
   background-color: var(--background-color);
   color: var(--color);
+  fill: var(--color);
 }
 
 .container {
@@ -51,7 +52,7 @@ body {
   margin-bottom: 8px;
 }
 
-.info svg {
+.info i {
   margin-right: 16px;
 }
 

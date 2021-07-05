@@ -1,11 +1,13 @@
 import React from 'react'
-import { ArrowRight, Check, Loader, Settings } from 'react-feather'
+import { Loader } from 'react-feather'
+import InlineSVG from 'svg-inline-react'
 
 import { BackendState } from '../../../constants/state'
 import { Switch, Button, Favicon } from '../common'
 import { AppState } from './state'
 import styles from './style.module.css'
 import { getAppContrast, rgbaToHex } from './contrast'
+import { Settings, Check, Forward } from '../assets/icons'
 
 // =============================================================================
 // Component types
@@ -47,9 +49,10 @@ export const App: Component = ({ state, toggleWhitelist }) => {
           </div>
 
           <div style={{ justifyContent: 'flex-end' }}>
-            <Settings
+            <InlineSVG
+              src={Settings}
               onClick={() => window.open('./settings.html')}
-              style={{ width: '16px', color: textColor, float: 'right' }}
+              style={{ width: '16px', fill: textColor, float: 'right' }}
             />
           </div>
         </div>
@@ -89,12 +92,14 @@ export const App: Component = ({ state, toggleWhitelist }) => {
 
         <div className={styles.info}>
           <span>
-            <Check
+            <i
+              dangerouslySetInnerHTML={{ __html: Check }}
               style={{
                 position: 'relative',
                 bottom: '-0.125em',
                 width: '1em',
                 height: '1em',
+                display: 'inline-block',
               }}
             />
             Total ads blocked
@@ -112,12 +117,14 @@ export const App: Component = ({ state, toggleWhitelist }) => {
         >
           <>
             View statistics{' '}
-            <ArrowRight
+            <i
+              dangerouslySetInnerHTML={{ __html: Forward }}
               style={{
                 position: 'relative',
                 bottom: '-0.125em',
                 width: '1em',
                 height: '1em',
+                display: 'inline-block',
               }}
             />
           </>
