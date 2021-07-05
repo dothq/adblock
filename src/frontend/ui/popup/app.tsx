@@ -61,7 +61,7 @@ export const App: Component = ({ state, toggleWhitelist }) => {
           className={styles.center}
           style={{ textAlign: 'center', color: textColor }}
         >
-          <h1>{state.blocked}</h1>
+          <h1 style={{ fontSize: '4em' }}>{state.blocked}</h1>
           <p>Ads or trackers blocked</p>
         </div>
       </main>
