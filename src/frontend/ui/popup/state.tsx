@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import psl from 'psl'
+const Vibrant = require('node-vibrant')
 
 import { graphColors } from '../../constants/colors'
 
@@ -42,23 +43,17 @@ export class State extends Component {
         currentWindow: true,
       })
       .then(async (tab) => {
-        // Get the theme color of the active tab
-        const executed = await browser.tabs.executeScript(tab[0].id | 0, {
-          code: `
-          (() => {
-            const themeColor = document.querySelector('meta[name="theme-color"]')
-            const defaultColor = '${DEFAULT_COLOR}'
-
-            if (themeColor !== null) return themeColor.getAttribute('content') 
-            else return defaultColor
-          })()
-          `,
-        })
+        const v = new Vibrant(
+          tab[0].favIconUrl.includes('chrome://')
+            ? defaultFavicon
+            : tab[0].favIconUrl
+        )
+        const color = (await v.getPalette()).Muted.hex || DEFAULT_COLOR
 
         this.setState({
           ...this.state,
           favicon: tab[0].favIconUrl || defaultFavicon,
-          color: executed[0] || DEFAULT_COLOR,
+          color: color,
         })
       })
 
