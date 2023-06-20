@@ -1,5 +1,7 @@
 # Dot Shield
 
+> This project has been archived as we are in the process of moving adblock logic [in-tree](https://github.com/dothq/browser-desktop), eventually this repository will be unarchived to store our block lists.
+
 ## Abnormal system requirements
 
 - `cargo install cargo-web`
